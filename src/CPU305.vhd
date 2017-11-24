@@ -109,6 +109,7 @@ begin
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(
 		clk => clk, rst => rst,
+		stall => gate2_stall,
 		input_val1 => id_val1,
 		input_val2 => id_val2,
 		input_res_reg_addr => id_res_reg_addr,
@@ -134,14 +135,13 @@ begin
 
 	gate3_exe_mem_inst: entity gate3_exe_mem port map(
 		clk => clk, rst => rst,
+		stall => gate3_stall,
 		input_res => exe_res,
-		input_reg_wr_addr => exe_reg_wr_addr,
 		input_res_reg_addr => exe_res_reg_addr,
 		input_mem_rd_flag => exe_mem_rd_flag,
 		input_mem_wr_flag => exe_mem_wr_flag,
 		input_reg_wr_flag => exe_reg_wr_flag,
 		output_res => mem_addr,
-		output_reg_wr_addr => mem_reg_wr_addr,
 		output_res_reg_addr => mem_res_reg_addr,
 		output_mem_rd_flag => mem_mem_rd_flag,
 		output_mem_wr_flag => mem_mem_wr_flag,
@@ -149,6 +149,7 @@ begin
 	);
 
 	pipe4_mem_inst: entity pipe4_mem port map(
+		clk2x => clk2x,
 		input_addr => mem_addr,
 		input_mem_rd_flag = mem_mem_rd_flag,
 		input_mem_wr_flag = mem_mem_wr_flag,
@@ -157,6 +158,22 @@ begin
 		mem2_rd_addr => mem2_rd_addr, mem2_rd_addr => mem2_rd_addr, mem2_rd_val => mem2_rd_val,
 		mem2_wr_addr => mem2_wr_addr, mem2_wr_addr => mem2_wr_addr, mem2_wr_val => mem2_wr_val,
 		output_val => mem_val,
+	);
+
+	gate4_mem_wb_inst: entity gate4_mem_wb port map(
+		clk => clk, rst => rst,
+		stall => gate4_stall,
+		input_reg_wr_flag => mem_reg_wr_flag,
+		input_mem_val => mem_val,
+		output_reg_wr_flag => wb_reg_wr_flag,
+		output_val => wb_val
+	);
+
+	pipe5_wb_inst: entity pipe5_wb port map(
+		clk2x => clk2x,
+		input_reg_wr_flag => wb_reg_wr_flag,
+		input_val => wb_val,
+		reg_wr => reg_wr, reg_we => reg_we, reg_wval => reg_wval
 	);
 
 end bhv;
