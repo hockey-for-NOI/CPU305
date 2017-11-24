@@ -88,15 +88,14 @@ begin
 
 	pipe2_id_inst: entity pipe2_id port map(
 		input_instruction => id_instruction,
-		input_prev_mem_rd_addr => prev_mem_rd_addr,
-		output_succ_mem_rd_addr => succ_mem_rd_addr,
 		output_reg_rd1 => reg_rd1,
 		output_reg_rd2 => reg_rd2,
 		input_reg_rval1 => reg_rval1,
 		input_reg_rval2 => reg_rval2,
-		output_val1_reg_addr => id_val1_reg_addr,
+		input_forward_exe_reg_wr_flag => exe_reg_wr_flag,
+		input_forward_exe_reg_wr_addr => exe_reg_wr_addr,
+		input_forward_exe_res => exe_res,
 		output_val1 => id_val1,
-		output_val2_reg_addr => id_val2_reg_addr,
 		output_val2 => id_val2,
 		output_res_reg_addr => id_res_reg_addr,
 		output_alu_op => id_alu_op,
@@ -108,34 +107,56 @@ begin
 		output_pc_stall => pc_stall,
 	);
 
-	pipe2_fwd_inst: entity pipe2_fwd port map(
-		clk => clk, rst => rst,
-		input_mem_rd_addr => succ_mem_rd_addr,
-		output_mem_rd_addr => prev_mem_rd_addr
-	);
-
 	gate2_id_exe_inst: entity gate2_id_exe port map(
+		clk => clk, rst => rst,
 		input_val1 => id_val1,
-		input_val1_reg_addr => id_val1_reg_addr,
 		input_val2 => id_val2,
-		input_val2_reg_addr => id_val2_reg_addr,
 		input_res_reg_addr => id_res_reg_addr,
 		input_alu_op => id_alu_op,
 		input_mem_rd_flag => id_mem_rd_flag,
 		input_mem_wr_flag => id_mem_wr_flag,
 		input_reg_wr_flag => id_reg_wr_flag,
 		output_val1 => exe_val1,
-		output_val1_reg_addr => exe_val1_reg_addr,
 		output_val2 => exe_val2,
-		output_val2_reg_addr => exe_val2_reg_addr,
 		output_res_reg_addr => exe_res_reg_addr,
 		output_alu_op => exe_alu_op,
 		output_mem_rd_flag => exe_mem_rd_flag,
 		output_mem_wr_flag => exe_mem_wr_flag,
-		output_reg_wr_flag => exe_reg_wr_flag
+		output_reg_wr_flag => exe_reg_wr_flag,
 	);
 
 	pipe3_exe_inst: entity pipe3_exe port map(
+		input_val1 => exe_val1,
+		input_val2 => exe_val2,
+		input_alu_op => exe_alu_op,
+		output_res => exe_res,
+	);
+
+	gate3_exe_mem_inst: entity gate3_exe_mem port map(
+		clk => clk, rst => rst,
+		input_res => exe_res,
+		input_reg_wr_addr => exe_reg_wr_addr,
+		input_res_reg_addr => exe_res_reg_addr,
+		input_mem_rd_flag => exe_mem_rd_flag,
+		input_mem_wr_flag => exe_mem_wr_flag,
+		input_reg_wr_flag => exe_reg_wr_flag,
+		output_res => mem_addr,
+		output_reg_wr_addr => mem_reg_wr_addr,
+		output_res_reg_addr => mem_res_reg_addr,
+		output_mem_rd_flag => mem_mem_rd_flag,
+		output_mem_wr_flag => mem_mem_wr_flag,
+		output_reg_wr_flag => mem_reg_wr_flag,
+	);
+
+	pipe4_mem_inst: entity pipe4_mem port map(
+		input_addr => mem_addr,
+		input_mem_rd_flag = mem_mem_rd_flag,
+		input_mem_wr_flag = mem_mem_wr_flag,
+		mem1_rd_flag => mem1_rd_flag, mem1_rd_addr => mem1_rd_addr, mem1_rd_val => mem1_rd_val,
+		mem1_wr_flag => mem1_wr_flag, mem1_wr_addr => mem1_wr_addr, mem1_wr_val => mem1_wr_val,
+		mem2_rd_addr => mem2_rd_addr, mem2_rd_addr => mem2_rd_addr, mem2_rd_val => mem2_rd_val,
+		mem2_wr_addr => mem2_wr_addr, mem2_wr_addr => mem2_wr_addr, mem2_wr_val => mem2_wr_val,
+		output_val => mem_val,
 	);
 
 end bhv;
