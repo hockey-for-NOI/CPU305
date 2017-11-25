@@ -1,8 +1,13 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity reg is
 	port(
 		rd1, rd2, wr : in STD_LOGIC_VECTOR(3 DOWNTO 0);
 		we : in STD_LOGIC;
-		rval1, rval2, wval : out STD_LOGIC_VECTOR(15 DOWNTO 0)
+		wval : in STD_LOGIC_VECTOR(15 downto 0);
+		rval1, rval2: out STD_LOGIC_VECTOR(15 DOWNTO 0)
 	);
 end reg;
 
@@ -13,7 +18,7 @@ begin
 	rval1 <= regs(CONV_INTEGER(rd1));
 	rval2 <= regs(CONV_INTEGER(rd2));
 	
-	process(we) --将使能当做clk
+	process(we) --set we as clk
 	begin
 		if we'event and we = '0' then
 			regs(CONV_INTEGER(wr)) <= wval;
