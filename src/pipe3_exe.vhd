@@ -7,7 +7,7 @@ entity pipe3_exe is
 	port(
 		input_val1, input_val2: in std_logic_vector(15 downto 0);
 		input_alu_op: in std_logic_vector(3 downto 0);
-		output_res: out std_logic_vector(15 downto 0);
+		output_res: out std_logic_vector(15 downto 0)
 	);		
 end pipe3_exe;
 
@@ -54,7 +54,7 @@ begin
 				tmp_res := input_val1;
 			when "1001" =>
 				tmp_res := input_val2;
-			when "f111" =>	--NULL
+			when "1111" =>	--NULL
 				tmp_res := "0000000000000000";
 			when others =>
 				tmp_res := "0000000000000000";
