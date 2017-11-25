@@ -14,4 +14,5 @@
 	7: 1 < 2 (unsigned)
 	8: 1
 	9: 2
-	A: 0
+	A~E: Reserved
+	F: 0
