@@ -6,6 +6,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity pipe2_id is
 	port(
 		input_instruction: in std_logic_vector(15 downto 0);
+		input_pc_addr: in std_logic_vector(15 downto 0);
 		output_reg_rd1, output_reg_rd2: out std_logic_vector(3 downto 0);
 		input_reg_rval1, input_reg_rval2: in std_logic_vector(15 downto 0);
 		input_forward_exe_reg_wr_flag: in std_logic;
@@ -19,7 +20,7 @@ entity pipe2_id is
 		output_reg_wr_flag: out std_logic;
 		output_jump_flag: out std_logic;
 		output_jump_addr: out std_logic_vector(15 downto 0);
-		output_stalls: out std_logic_vector(4 downto 0);
+		output_bubble: out std_logic;
 	);
 end pipe2_id;
 
@@ -44,7 +45,7 @@ begin
 		output_reg_wr_flag <= '0';
 		output_jump_flag <= '0';
 		output_jump_addr <= (others => '0');
-		output_stalls <= (others => '0');
+		output_bubble <= '0';
 
 		rx := '0' & input_instruction(10 downto 8);
 		ry := '0' & input_instruction(7 downto 5);

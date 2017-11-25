@@ -47,6 +47,7 @@ signal	mem_mem_rd_flag, mem_mem_wr_flag, mem_reg_wr_flag: std_logic;
 signal	mem_input_val, mem_output_val: std_logic_vector(15 downto 0);
 signal	wb_reg_wr_flag: std_logic;
 signal	wb_val: std_logic_vector(15 downto 0);
+signal	sram1_corrupt, id_bubble: std_logic;
 
 begin
 
@@ -63,16 +64,16 @@ begin
 	);
 
 	mem1_inst: entity mem1 port map(
-		clk => clk, rst => rst,
 		clk_wr => clk_wr,
+		if_addr => if_pc_addr, if_val => if_instruction,
 		rd_flag => mem1_rd_flag, rd_addr => mem1_rd_addr, rd_val => mem1_rd_val,
 		wr_flag => mem1_wr_flag, wr_addr => mem1_wr_addr, wr_val => mem1_wr_val,
 		sram1_en => sram1_en, sram1_oe => sram1_oe, sram1_we => sram1_we,
-		sram1_data => sram1_data, sram1_addr => sram1_addr
+		sram1_data => sram1_data, sram1_addr => sram1_addr,
+		corrupt => sram1_corrupt
 	);
 
 	mem2_inst: entity mem2 port map(
-		clk => clk, rst => rst,
 		clk_wr => clk_wr,
 		rd_addr => mem2_rd_addr, rd_addr => mem2_rd_addr, rd_val => mem2_rd_val,
 		wr_addr => mem2_wr_addr, wr_addr => mem2_wr_addr, wr_val => mem2_wr_val,
@@ -81,26 +82,31 @@ begin
 		data_ready => data_ready, tsre => tsre, tbre => tbre
 	);
 
+	stallman_inst: entity stallman port map(
+		input_sram1_corrupt => sram1_corrupt,
+		input_id_bubble => id_bubble,
+		output_stalls => pc_stall & gate1_stall & gate2_stall & gate3_stall & gate4_stall
+	);
+
 	pc_inst: entity PC port map(
 		clk => clk, rst => rst,
 		jump_flag => pc_jump_flag, jump_addr => pc_jump_addr,
-		stall => pc_stall, pc_addr => pc_addr
-	);
-
-	pipe1_if_inst: entity pipe1_if port map(
-		input_pc_addr => pc_addr,
-		output_instruction => if_instruction
+		stall => pc_stall, pc_addr => if_pc_addr,
 	);
 
 	gate1_if_id_inst: entity gate1_if_id port map(
 		clk => clk, rst => rst,
 		stall => gate1_stall,
+		bubble => id_bubble,
 		input_instruction => if_instruction,
-		output_instruction => id_instruction
+		input_pc_addr => if_pc_addr,
+		output_instruction => id_instruction,
+		output_pc_addr => id_pc_addr
 	);
 
 	pipe2_id_inst: entity pipe2_id port map(
 		input_instruction => id_instruction,
+		input_pc_addr => id_pc_addr,
 		output_reg_rd1 => reg_rd1,
 		output_reg_rd2 => reg_rd2,
 		input_reg_rval1 => reg_rval1,
@@ -118,7 +124,7 @@ begin
 		output_reg_wr_flag => id_reg_wr_flag,
 		output_jump_flag => pc_jump_flag,
 		output_jump_addr => pc_jump_addr,
-		output_stalls => pc_stall & gate1_stall & gate2_stall & gate3_stall & gate4_stall
+		output_bubble => id_bubble,
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(
@@ -152,6 +158,7 @@ begin
 	gate3_exe_mem_inst: entity gate3_exe_mem port map(
 		clk => clk, rst => rst,
 		stall => gate3_stall,
+		bubble => sram1_corrupt,
 		input_res => exe_res,
 		input_val => exe_val3,
 		input_res_reg_addr => exe_res_reg_addr,
