@@ -29,11 +29,11 @@ signal	mem1_rd_val, mem1_wr_val, mem2_rd_val, mem2_wr_val: std_logic_vector(15 d
 signal	pc_jump_flag, pc_stall: std_logic;
 signal	pc_jump_addr, pc_addr: std_logic_vector(15 downto 0);
 signal	if_instruction: std_logic_vector(15 downto 0);
-signal	config_pc_mask: std_logic_vector(15 downto 0);
+signal	if_pc_addr, id_pc_addr: std_logic_vector(15 downto 0);
 signal	gate1_stall, gate2_stall, gate3_stall, gate4_stall: std_logic;
 signal	id_instruction: std_logic_vector(15 downto 0);
 signal	id_val1, id_val2, id_val3: std_logic_vector(15 downto 0);
-signal	id_res_reg_addr: std_logic_vector(15 downto 0);
+signal	id_res_reg_addr: std_logic_vector(3 downto 0);
 signal	id_alu_op: std_logic_vector(3 downto 0);
 signal	id_mem_rd_flag, id_mem_wr_flag, id_reg_wr_flag: std_logic;
 signal	exe_val1, exe_val2, exe_val3: std_logic_vector(15 downto 0);
@@ -85,13 +85,17 @@ begin
 	stallman_inst: entity stallman port map(
 		input_sram1_corrupt => sram1_corrupt,
 		input_id_bubble => id_bubble,
-		output_stalls => pc_stall & gate1_stall & gate2_stall & gate3_stall & gate4_stall
+		output_stalls(4) => pc_stall,
+		output_stalls(3) => gate1_stall,
+		output_stalls(2) => gate2_stall,
+		output_stalls(1) => gate3_stall,
+		output_stalls(0) => gate4_stall
 	);
 
 	pc_inst: entity PC port map(
 		clk => clk, rst => rst,
 		jump_flag => pc_jump_flag, jump_addr => pc_jump_addr,
-		stall => pc_stall, pc_addr => if_pc_addr,
+		stall => pc_stall, pc_addr => if_pc_addr
 	);
 
 	gate1_if_id_inst: entity gate1_if_id port map(
@@ -124,7 +128,7 @@ begin
 		output_reg_wr_flag => id_reg_wr_flag,
 		output_jump_flag => pc_jump_flag,
 		output_jump_addr => pc_jump_addr,
-		output_bubble => id_bubble,
+		output_bubble => id_bubble
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(

@@ -9,7 +9,7 @@ entity PC is
 		jump_flag: in std_logic;
 		jump_addr: in std_logic_vector(15 downto 0);
 		stall: in std_logic;
-		pc_addr: out std_logic_vector(15 downto 0);
+		pc_addr: out std_logic_vector(15 downto 0)
 	);
 end PC;
 
@@ -28,7 +28,7 @@ begin
 		elsif rising_edge(clk) then
 			if (stall = '0') then
 				pc <= next_pc;
-				if (jump_flag) then
+				if (jump_flag = '1') then
 					next_pc <= jump_addr;
 				else
 					next_pc <= pc + 1;

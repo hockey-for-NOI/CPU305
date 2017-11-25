@@ -20,7 +20,7 @@ entity pipe2_id is
 		output_reg_wr_flag: out std_logic;
 		output_jump_flag: out std_logic;
 		output_jump_addr: out std_logic_vector(15 downto 0);
-		output_bubble: out std_logic;
+		output_bubble: out std_logic
 	);
 end pipe2_id;
 
@@ -55,12 +55,12 @@ begin
 			when "01001"=> -- ADDIU
 				output_reg_rd1 <= rx;
 				output_val1 <= input_reg_rval1;
-				if (input_forward_exe_reg_wr_flag) then
-					if (rx == input_forwardexe_reg_addr) then
+				if (input_forward_exe_reg_wr_flag = '1') then
+					if (rx = input_forward_exe_res_reg_addr) then
 						output_val1 <= input_forward_exe_res;
 					end if;
 				end if;
-				output_val2 <= (others => input_instruction(7);
+				output_val2 <= (others => input_instruction(7));
 				output_val2(7 downto 0) <= input_instruction(7 downto 0);
 				output_res_reg_addr <= rx;
 				output_alu_op <= x"0";
@@ -82,9 +82,9 @@ begin
 				end case;
 			when "11100"=>
 				case input_instruction(1 downto 0) is
-					case "01"=> -- ADDU
+					when "01"=> -- ADDU
 						null;
-					case "11"=> -- SUBU
+					when "11"=> -- SUBU
 						null;
 					when others=>
 						null;

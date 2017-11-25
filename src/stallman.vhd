@@ -7,7 +7,7 @@ entity stallman is
 	port(
 		input_sram1_corrupt: in std_logic;
 		input_id_bubble: in std_logic;
-		output_stalls: out std_logic_vector(4 downto 0);
+		output_stalls: out std_logic_vector(4 downto 0)
 	);
 end stallman;
 
