@@ -54,7 +54,7 @@ begin
 --	clkman_inst: entity clkman_25m port map(
 	clkman_inst: entity clkman_hand port map(
 		clk_press => clk_press, clk_50m => clk_50m,
-		clk => clk, clk_wr => clk_wr, -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
+		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 	);
 
 	reg_inst: entity reg port map(
@@ -175,8 +175,8 @@ begin
 		input_mem_wr_flag => mem_mem_wr_flag,
 		mem1_rd_flag => mem1_rd_flag, mem1_rd_addr => mem1_rd_addr, mem1_rd_val => mem1_rd_val,
 		mem1_wr_flag => mem1_wr_flag, mem1_wr_addr => mem1_wr_addr, mem1_wr_val => mem1_wr_val,
-		mem2_rd_addr => mem2_rd_addr, mem2_rd_addr => mem2_rd_addr, mem2_rd_val => mem2_rd_val,
-		mem2_wr_addr => mem2_wr_addr, mem2_wr_addr => mem2_wr_addr, mem2_wr_val => mem2_wr_val,
+		mem2_rd_flag => mem2_rd_flag, mem2_rd_addr => mem2_rd_addr, mem2_rd_val => mem2_rd_val,
+		mem2_wr_flag => mem2_wr_flag, mem2_wr_addr => mem2_wr_addr, mem2_wr_val => mem2_wr_val,
 		output_val => mem_output_val
 	);
 
