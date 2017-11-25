@@ -19,7 +19,7 @@ end CPU;
 
 architecture bhv of CPU is
 
-signal	clk, clk_neg, clk_2x, clk_2x_neg, clk_4x, clk_4x_neg: std_logic;
+signal	clk, clk_wr: std_logic;
 signal	reg_rd1, reg_rd2, reg_wr: std_logic_vector(3 downto 0);
 signal	reg_rval1, reg_rval2, reg_wval: std_logic_vector(15 downto 0);
 signal	reg_we: std_logic;
@@ -54,9 +54,7 @@ begin
 --	clkman_inst: entity clkman_25m port map(
 	clkman_inst: entity clkman_hand port map(
 		clk_press => clk_press, clk_50m => clk_50m,
-		clk => clk, clk_neg => clk_neg,
-		clk_2x => clk_2x, clk_2x_neg => clk_2x_neg,
-		clk_4x => clk_4x, clk_4x_neg => clk_4x_neg
+		clk => clk, clk_wr => clk_wr, -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 	);
 
 	reg_inst: entity reg port map(
@@ -164,10 +162,10 @@ begin
 	);
 
 	pipe4_mem_inst: entity pipe4_mem port map(
-		clk_2x => clk_2x,
+		clk_wr => clk_wr,
 		input_addr => mem_addr,
-		input_mem_rd_flag = mem_mem_rd_flag,
-		input_mem_wr_flag = mem_mem_wr_flag,
+		input_mem_rd_flag => mem_mem_rd_flag,
+		input_mem_wr_flag => mem_mem_wr_flag,
 		mem1_rd_flag => mem1_rd_flag, mem1_rd_addr => mem1_rd_addr, mem1_rd_val => mem1_rd_val,
 		mem1_wr_flag => mem1_wr_flag, mem1_wr_addr => mem1_wr_addr, mem1_wr_val => mem1_wr_val,
 		mem2_rd_addr => mem2_rd_addr, mem2_rd_addr => mem2_rd_addr, mem2_rd_val => mem2_rd_val,
@@ -185,7 +183,7 @@ begin
 	);
 
 	pipe5_wb_inst: entity pipe5_wb port map(
-		clk_2x => clk_2x,
+		clk_wr => clk_wr,
 		input_reg_wr_flag => wb_reg_wr_flag,
 		input_val => wb_val,
 		reg_wr => reg_wr, reg_we => reg_we, reg_wval => reg_wval
