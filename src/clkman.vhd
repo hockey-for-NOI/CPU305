@@ -17,7 +17,7 @@ begin
 	process(clk_in)
 	begin
 		if rising_edge(clk_in) then 
-			clk <= t(0);
+			clk <= t(1);
 			clk_wr <= t(0) or t(1);
 			t <= t + 1;
 		end if;		
