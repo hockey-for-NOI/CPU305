@@ -52,8 +52,8 @@ begin
 
 --	clkman_inst: entity clkman_50m port map(
 --	clkman_inst: entity clkman_25m port map(
-	clkman_inst: entity clkman_hand port map(
-		clk_press => clk_press, clk_50m => clk_50m,
+	clkman_inst: entity clkman port map(
+		clk_press => clk_in,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 	);
 
