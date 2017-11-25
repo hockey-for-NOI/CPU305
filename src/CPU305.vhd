@@ -32,11 +32,11 @@ signal	if_instruction: std_logic_vector(15 downto 0);
 signal	config_pc_mask: std_logic_vector(15 downto 0);
 signal	gate1_stall, gate2_stall, gate3_stall, gate4_stall: std_logic;
 signal	id_instruction: std_logic_vector(15 downto 0);
-signal	id_val1, id_val2: std_logic_vector(15 downto 0);
+signal	id_val1, id_val2, id_val3: std_logic_vector(15 downto 0);
 signal	id_res_reg_addr: std_logic_vector(15 downto 0);
 signal	id_alu_op: std_logic_vector(3 downto 0);
 signal	id_mem_rd_flag, id_mem_wr_flag, id_reg_wr_flag: std_logic;
-signal	exe_val1, exe_val2: std_logic_vector(15 downto 0);
+signal	exe_val1, exe_val2, exe_val3: std_logic_vector(15 downto 0);
 signal	exe_res_reg_addr: std_logic_vector(15 downto 0);
 signal	exe_alu_op: std_logic_vector(3 downto 0);
 signal	exe_mem_rd_flag, exe_mem_wr_flag, exe_reg_wr_flag: std_logic;
@@ -44,7 +44,7 @@ signal	exe_res: std_logic_vector(15 downto 0);
 signal	mem_addr: std_logic_vector(15 downto 0);
 signal	mem_res_reg_addr: std_logic_vector(15 downto 0);
 signal	mem_mem_rd_flag, mem_mem_wr_flag, mem_reg_wr_flag: std_logic;
-signal	mem_val: std_logic_vector(15 downto 0);
+signal	mem_input_val, mem_output_val: std_logic_vector(15 downto 0);
 signal	wb_reg_wr_flag: std_logic;
 signal	wb_val: std_logic_vector(15 downto 0);
 
@@ -66,6 +66,7 @@ begin
 
 	mem1_inst: entity mem1 port map(
 		clk => clk, rst => rst,
+		clk_wr => clk_wr,
 		rd_flag => mem1_rd_flag, rd_addr => mem1_rd_addr, rd_val => mem1_rd_val,
 		wr_flag => mem1_wr_flag, wr_addr => mem1_wr_addr, wr_val => mem1_wr_val,
 		sram1_en => sram1_en, sram1_oe => sram1_oe, sram1_we => sram1_we,
@@ -74,6 +75,7 @@ begin
 
 	mem2_inst: entity mem2 port map(
 		clk => clk, rst => rst,
+		clk_wr => clk_wr,
 		rd_addr => mem2_rd_addr, rd_addr => mem2_rd_addr, rd_val => mem2_rd_val,
 		wr_addr => mem2_wr_addr, wr_addr => mem2_wr_addr, wr_val => mem2_wr_val,
 		sram2_en => sram2_en, sram2_oe => sram2_oe, sram2_we => sram2_we,
@@ -110,6 +112,7 @@ begin
 		input_forward_exe_res => exe_res,
 		output_val1 => id_val1,
 		output_val2 => id_val2,
+		output_val3 => id_val3,
 		output_res_reg_addr => id_res_reg_addr,
 		output_alu_op => id_alu_op,
 		output_mem_rd_flag => id_mem_rd_flag,
@@ -125,6 +128,7 @@ begin
 		stall => gate2_stall,
 		input_val1 => id_val1,
 		input_val2 => id_val2,
+		input_val3 => id_val3,
 		input_res_reg_addr => id_res_reg_addr,
 		input_alu_op => id_alu_op,
 		input_mem_rd_flag => id_mem_rd_flag,
@@ -132,6 +136,7 @@ begin
 		input_reg_wr_flag => id_reg_wr_flag,
 		output_val1 => exe_val1,
 		output_val2 => exe_val2,
+		output_val3 => exe_val3,
 		output_res_reg_addr => exe_res_reg_addr,
 		output_alu_op => exe_alu_op,
 		output_mem_rd_flag => exe_mem_rd_flag,
@@ -150,11 +155,13 @@ begin
 		clk => clk, rst => rst,
 		stall => gate3_stall,
 		input_res => exe_res,
+		input_val => exe_val3,
 		input_res_reg_addr => exe_res_reg_addr,
 		input_mem_rd_flag => exe_mem_rd_flag,
 		input_mem_wr_flag => exe_mem_wr_flag,
 		input_reg_wr_flag => exe_reg_wr_flag,
 		output_res => mem_addr,
+		output_val => mem_input_val,
 		output_res_reg_addr => mem_res_reg_addr,
 		output_mem_rd_flag => mem_mem_rd_flag,
 		output_mem_wr_flag => mem_mem_wr_flag,
@@ -162,22 +169,22 @@ begin
 	);
 
 	pipe4_mem_inst: entity pipe4_mem port map(
-		clk_wr => clk_wr,
 		input_addr => mem_addr,
+		input_val => mem_input_val,
 		input_mem_rd_flag => mem_mem_rd_flag,
 		input_mem_wr_flag => mem_mem_wr_flag,
 		mem1_rd_flag => mem1_rd_flag, mem1_rd_addr => mem1_rd_addr, mem1_rd_val => mem1_rd_val,
 		mem1_wr_flag => mem1_wr_flag, mem1_wr_addr => mem1_wr_addr, mem1_wr_val => mem1_wr_val,
 		mem2_rd_addr => mem2_rd_addr, mem2_rd_addr => mem2_rd_addr, mem2_rd_val => mem2_rd_val,
 		mem2_wr_addr => mem2_wr_addr, mem2_wr_addr => mem2_wr_addr, mem2_wr_val => mem2_wr_val,
-		output_val => mem_val
+		output_val => mem_output_val
 	);
 
 	gate4_mem_wb_inst: entity gate4_mem_wb port map(
 		clk => clk, rst => rst,
 		stall => gate4_stall,
 		input_reg_wr_flag => mem_reg_wr_flag,
-		input_mem_val => mem_val,
+		input_mem_val => mem_output_val,
 		output_reg_wr_flag => wb_reg_wr_flag,
 		output_val => wb_val
 	);
