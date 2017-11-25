@@ -30,8 +30,23 @@ signal	pc_jump_flag, pc_stall: std_logic;
 signal	pc_jump_addr, pc_addr: std_logic_vector(15 downto 0);
 signal	if_instruction: std_logic_vector(15 downto 0);
 signal	config_pc_mask: std_logic_vector(15 downto 0);
-signal	gate1_stall: std_logic;
+signal	gate1_stall, gate2_stall, gate3_stall, gate4_stall: std_logic;
 signal	id_instruction: std_logic_vector(15 downto 0);
+signal	id_val1, id_val2: std_logic_vector(15 downto 0);
+signal	id_res_reg_addr: std_logic_vector(15 downto 0);
+signal	id_alu_op: std_logic_vector(3 downto 0);
+signal	id_mem_rd_flag, id_mem_wr_flag, id_reg_wr_flag: std_logic;
+signal	exe_val1, exe_val2: std_logic_vector(15 downto 0);
+signal	exe_res_reg_addr: std_logic_vector(15 downto 0);
+signal	exe_alu_op: std_logic_vector(3 downto 0);
+signal	exe_mem_rd_flag, exe_mem_wr_flag, exe_reg_wr_flag: std_logic;
+signal	exe_res: std_logic_vector(15 downto 0);
+signal	mem_addr: std_logic_vector(15 downto 0);
+signal	mem_res_reg_addr: std_logic_vector(15 downto 0);
+signal	mem_mem_rd_flag, mem_mem_wr_flag, mem_reg_wr_flag: std_logic;
+signal	mem_val: std_logic_vector(15 downto 0);
+signal	wb_reg_wr_flag: std_logic;
+signal	wb_val: std_logic_vector(15 downto 0);
 
 begin
 
@@ -104,7 +119,7 @@ begin
 		output_reg_wr_flag => id_reg_wr_flag,
 		output_jump_flag => pc_jump_flag,
 		output_jump_addr => pc_jump_addr,
-		output_pc_stall => pc_stall,
+		output_stalls => pc_stall & gate1_stall & gate2_stall & gate3_stall & gate4_stall
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(
