@@ -31,7 +31,7 @@ begin
 				if (jump_flag = '1') then
 					next_pc <= jump_addr;
 				else
-					next_pc <= pc + 1;
+					next_pc <= next_pc + 1;
 				end if;
 			end if;
 		end if;
