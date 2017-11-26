@@ -15,7 +15,7 @@ end PC;
 
 architecture bhv of PC is
 
-signal	next_pc, pc: std_logic_vector(15 downto 0);
+signal	pc: std_logic_vector(15 downto 0);
 
 begin
 	pc_addr <= pc;
@@ -24,14 +24,12 @@ begin
 	begin
 		if (rst = '1') then
 			pc <= (others => '0');
-			next_pc <= (others => '0');
 		elsif rising_edge(clk) then
 			if (stall = '0') then
-				pc <= next_pc;
 				if (jump_flag = '1') then
-					next_pc <= jump_addr;
+					pc <= jump_addr;
 				else
-					next_pc <= next_pc + 1;
+					pc <= pc + 1;
 				end if;
 			end if;
 		end if;
