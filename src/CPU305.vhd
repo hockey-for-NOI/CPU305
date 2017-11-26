@@ -37,16 +37,17 @@ signal	id_res_reg_addr: std_logic_vector(3 downto 0);
 signal	id_alu_op: std_logic_vector(3 downto 0);
 signal	id_mem_rd_flag, id_mem_wr_flag, id_reg_wr_flag: std_logic;
 signal	exe_val1, exe_val2, exe_val3: std_logic_vector(15 downto 0);
-signal	exe_res_reg_addr: std_logic_vector(15 downto 0);
+signal	exe_res_reg_addr: std_logic_vector(3 downto 0);
 signal	exe_alu_op: std_logic_vector(3 downto 0);
 signal	exe_mem_rd_flag, exe_mem_wr_flag, exe_reg_wr_flag: std_logic;
 signal	exe_res: std_logic_vector(15 downto 0);
 signal	mem_addr: std_logic_vector(15 downto 0);
-signal	mem_res_reg_addr: std_logic_vector(15 downto 0);
+signal	mem_res_reg_addr: std_logic_vector(3 downto 0);
 signal	mem_mem_rd_flag, mem_mem_wr_flag, mem_reg_wr_flag: std_logic;
 signal	mem_input_val, mem_output_val: std_logic_vector(15 downto 0);
 signal	wb_reg_wr_flag: std_logic;
 signal	wb_val: std_logic_vector(15 downto 0);
+signal	wb_res_reg_addr: std_logic_vector(3 downto 0);
 signal	sram1_corrupt, id_bubble: std_logic;
 
 begin
@@ -193,15 +194,18 @@ begin
 		clk => clk, rst => rst,
 		stall => gate4_stall,
 		input_reg_wr_flag => mem_reg_wr_flag,
+		input_res_reg_addr => mem_res_reg_addr,
 		input_mem_val => mem_output_val,
 		output_reg_wr_flag => wb_reg_wr_flag,
 		output_val => wb_val
+		output_res_reg_addr => wb_res_reg_addr,
 	);
 
 	pipe5_wb_inst: entity pipe5_wb port map(
 		clk_wr => clk_wr,
 		input_reg_wr_flag => wb_reg_wr_flag,
 		input_val => wb_val,
+		input_res_reg_addr => wb_res_reg_addr,
 		reg_wr => reg_wr, reg_we => reg_we, reg_wval => reg_wval
 	);
 
