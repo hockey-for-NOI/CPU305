@@ -60,7 +60,6 @@ begin
 	);
 
 	reg_inst: entity reg port map(
-		clk => clk, rst => rst,
 		rd1 => reg_rd1, rval1 => reg_rval1,
 		rd2 => reg_rd2, rval2 => reg_rval2,
 		wr => reg_wr, we => reg_we, wval => reg_wval
@@ -102,7 +101,8 @@ begin
 		rval2 => forwarder_rval2,
 		reg_rd1 => reg_rd1, reg_rval1 => reg_rval1,
 		reg_rd2 => reg_rd2, reg_rval2 => reg_rval2,
-		exe_forward_flag => exe_reg_wr_flag and not exe_mem_rd_flag,
+		exe_forward_flag => exe_reg_wr_flag,
+		exe_forward_nflag => exe_mem_rd_flag,
 		exe_forward_addr => exe_res_reg_addr,
 		exe_forward_val => exe_res,
 		mem_forward_flag => mem_mem_rd_flag,

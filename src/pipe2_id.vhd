@@ -25,8 +25,7 @@ architecture bhv of pipe2_id is
 
 begin
 
-	process (input_instruction, input_reg_rval1, input_reg_rval2,
-				input_forward_exe_reg_wr_flag, input_forward_exe_res_reg_addr, input_forward_exe_res)
+	process (input_instruction, input_reg_rval1, input_reg_rval2, input_pc_addr)
 	variable rx, ry, rz: std_logic_vector(3 downto 0);
 	begin
 		--Default Values
