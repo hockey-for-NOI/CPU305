@@ -14,7 +14,7 @@ end stallman;
 architecture bhv of stallman is
 begin
 
-	process (input_sram1_corrupt, input_id_bubble)
+	process (input_sram1_corrupt, input_forwarder_bubble)
 	begin
 		if (input_sram1_corrupt = '1') then
 			output_stalls <= "11100";
