@@ -18,6 +18,6 @@ end pipe5_wb;
 architecture bhv of pipe5_wb is
 begin
 	reg_wr <= input_res_reg_addr;
-	reg_we <= clk_wr or input_reg_wr_flag;
+	reg_we <= clk_wr or not input_reg_wr_flag;
 	reg_wval <= input_val;
 end bhv;
