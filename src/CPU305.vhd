@@ -101,8 +101,8 @@ begin
 		rval2 => forwarder_rval2,
 		reg_rd1 => reg_rd1, reg_rval1 => reg_rval1,
 		reg_rd2 => reg_rd2, reg_rval2 => reg_rval2,
-		exe_forward_flag => exe_reg_wr_flag,
-		exe_forward_nflag => exe_mem_rd_flag,
+		exe_reg_wr_flag => exe_reg_wr_flag,
+		exe_mem_rd_nflag => exe_mem_rd_flag,
 		exe_forward_addr => exe_res_reg_addr,
 		exe_forward_val => exe_res,
 		mem_forward_flag => mem_mem_rd_flag,
@@ -142,13 +142,13 @@ begin
 		output_mem_wr_flag => id_mem_wr_flag,
 		output_reg_wr_flag => id_reg_wr_flag,
 		output_jump_flag => pc_jump_flag,
-		output_jump_addr => pc_jump_addr,
-		output_bubble => id_bubble
+		output_jump_addr => pc_jump_addr
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(
 		clk => clk, rst => rst,
 		stall => gate2_stall,
+		bubble => forwarder_bubble,
 		input_val1 => id_val1,
 		input_val2 => id_val2,
 		input_val3 => id_val3,
