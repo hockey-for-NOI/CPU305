@@ -9,9 +9,6 @@ entity pipe2_id is
 		input_pc_addr: in std_logic_vector(15 downto 0);
 		output_reg_rd1, output_reg_rd2: out std_logic_vector(3 downto 0);
 		input_reg_rval1, input_reg_rval2: in std_logic_vector(15 downto 0);
-		input_forward_exe_reg_wr_flag: in std_logic;
-		input_forward_exe_res_reg_addr: in std_logic_vector(15 downto 0);
-		input_forward_exe_res: in std_logic_vector(15 downto 0);
 		output_val1, output_val2, output_val3: out std_logic_vector(15 downto 0);
 		output_res_reg_addr: out std_logic_vector(3 downto 0);
 		output_alu_op: out std_logic_vector(3 downto 0);
@@ -55,11 +52,6 @@ begin
 			when "01001"=> -- ADDIU
 				output_reg_rd1 <= rx;
 				output_val1 <= input_reg_rval1;
-				if (input_forward_exe_reg_wr_flag = '1') then
-					if (rx = input_forward_exe_res_reg_addr) then
-						output_val1 <= input_forward_exe_res;
-					end if;
-				end if;
 				output_val2 <= (others => input_instruction(7));
 				output_val2(7 downto 0) <= input_instruction(7 downto 0);
 				output_res_reg_addr <= rx;

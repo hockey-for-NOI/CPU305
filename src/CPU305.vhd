@@ -49,6 +49,8 @@ signal	wb_reg_wr_flag: std_logic;
 signal	wb_val: std_logic_vector(15 downto 0);
 signal	wb_res_reg_addr: std_logic_vector(3 downto 0);
 signal	sram1_corrupt, id_bubble: std_logic;
+signal	forwarder_rd1, forwarder_rd2: std_logic_vector(3 downto 0);
+signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 
 begin
 
@@ -93,6 +95,21 @@ begin
 		output_stalls(0) => gate4_stall
 	);
 
+	forwarder_inst: entity forwarder port map(
+		rd1 => forwarder_rd1,
+		rd2 => forwarder_rd2,
+		rval1 => forwarder_rval1,
+		rval2 => forwarder_rval2,
+		reg_rd1 => reg_rd1, reg_rval1 => reg_rval1,
+		reg_rd2 => reg_rd2, reg_rval2 => reg_rval2,
+		exe_forward_flag => exe_reg_wr_flag and not exe_mem_rd_flag,
+		exe_forward_addr => exe_res_reg_addr,
+		exe_forward_val => exe_res,
+		mem_forward_flag => mem_mem_rd_flag,
+		mem_forward_addr => mem_res_reg_addr,
+		mem_forward_val => mem_output_val
+	);
+
 	pc_inst: entity PC port map(
 		clk => clk, rst => rst,
 		jump_flag => pc_jump_flag, jump_addr => pc_jump_addr,
@@ -112,13 +129,10 @@ begin
 	pipe2_id_inst: entity pipe2_id port map(
 		input_instruction => id_instruction,
 		input_pc_addr => id_pc_addr,
-		output_reg_rd1 => reg_rd1,
-		output_reg_rd2 => reg_rd2,
-		input_reg_rval1 => reg_rval1,
-		input_reg_rval2 => reg_rval2,
-		input_forward_exe_reg_wr_flag => exe_reg_wr_flag,
-		input_forward_exe_res_reg_addr => exe_res_reg_addr,
-		input_forward_exe_res => exe_res,
+		output_reg_rd1 => forwarder_rd1,
+		output_reg_rd2 => forwarder_rd2,
+		input_reg_rval1 => forwarder_rval1,
+		input_reg_rval2 => forwarder_rval2,
 		output_val1 => id_val1,
 		output_val2 => id_val2,
 		output_val3 => id_val3,
