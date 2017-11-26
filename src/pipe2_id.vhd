@@ -16,8 +16,7 @@ entity pipe2_id is
 		output_mem_wr_flag: out std_logic;
 		output_reg_wr_flag: out std_logic;
 		output_jump_flag: out std_logic;
-		output_jump_addr: out std_logic_vector(15 downto 0);
-		output_bubble: out std_logic
+		output_jump_addr: out std_logic_vector(15 downto 0)
 	);
 end pipe2_id;
 
@@ -41,7 +40,6 @@ begin
 		output_reg_wr_flag <= '0';
 		output_jump_flag <= '0';
 		output_jump_addr <= (others => '0');
-		output_bubble <= '0';
 
 		rx := '0' & input_instruction(10 downto 8);
 		ry := '0' & input_instruction(7 downto 5);
