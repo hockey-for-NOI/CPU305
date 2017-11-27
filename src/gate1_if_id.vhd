@@ -8,7 +8,7 @@ entity gate1_if_id is
 		clk, rst: in STD_LOGIC;
 		stall, bubble: in STD_LOGIC;
 		input_instruction, input_pc_addr: in STD_LOGIC_VECTOR(15 downto 0);
-		output_instruction, output_pc_addr: out STD_LOGIC_VECTOR(15 downto 0);
+		output_instruction, output_pc_addr: out STD_LOGIC_VECTOR(15 downto 0)
 	);
 end gate1_if_id;
 
