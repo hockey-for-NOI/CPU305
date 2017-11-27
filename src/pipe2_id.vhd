@@ -93,9 +93,21 @@ begin
 			when "11100"=>
 				case input_instruction(1 downto 0) is
 					when "01"=> -- ADDU
-						null;
+						output_reg_rd1 <= rx;
+						output_reg_rd2 <= ry;
+						output_val1 <= input_reg_rval1;
+						output_val2 <= input_reg_rval2;
+						output_res_reg_addr <= rz;
+						output_alu_op <= "0000";
+						output_reg_wr_flag <= '1';
 					when "11"=> -- SUBU
-						null;
+						output_reg_rd1 <= rx;
+						output_reg_rd2 <= ry;
+						output_val1 <= input_reg_rval1;
+						output_val2 <= input_reg_rval2;
+						output_res_reg_addr <= rz;
+						output_alu_op <= "0001";
+						output_reg_wr_flag <= '1';
 					when others=>
 						null;
 				end case;
@@ -108,7 +120,14 @@ begin
 			when "11101"=>
 				case input_instruction(4 downto 0) is
 					when "01010"=> -- CMP
-						null;
+						rz := "1000"; --8: T
+						output_reg_rd1 <= rx;
+						output_reg_rd2 <= ry;
+						output_val1 <= input_reg_rval1;
+						output_val2 <= input_reg_rval2;
+						output_res_reg_addr <= rz;
+						output_alu_op <= "0110";
+						output_reg_wr_flag <= '1';
 					when "01100"=> -- AND
 						null;
 					when "01101"=> -- OR
