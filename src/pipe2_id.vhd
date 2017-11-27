@@ -46,26 +46,47 @@ begin
 		rz := '0' & input_instruction(4 downto 2);
 
 		case input_instruction(15 downto 11) is
+			when "00001"=> -- NOP
+				null;
 			when "01001"=> -- ADDIU
 				output_reg_rd1 <= rx;
-				output_val1 <= input_reg_rval1;
+				output_val1 <= input_reg_rval1;	
 				output_val2 <= (others => input_instruction(7));
 				output_val2(7 downto 0) <= input_instruction(7 downto 0);
 				output_res_reg_addr <= rx;
 				output_alu_op <= x"0";
 				output_reg_wr_flag <= '1';
 			when "01000"=> -- ADDIU3
-				null;
+				output_reg_rd1 <= rx;
+				output_val1 <= input_reg_rval1;
+				output_val2 <= (others => input_instruction(3));
+				output_val2(3 downto 0) <= input_instruction(3 downto 0);
+				output_res_reg_addr <= ry;
+				output_alu_op <= "0000";
+				output_reg_wr_flag <= '1';
 			when "01100"=>
 				case input_instruction(10 downto 8) is
 					when "011"=> -- ADDSP
-						null;
+						rx := "1010"; --A: SP
+						output_reg_rd1 <= rx; --SP
+						output_val1 <= input_reg_rval1;
+						output_val2 <= (others => input_instruction(7));
+						output_val2(7 downto 0) <= input_instruction(7 downto 0);
+						output_res_reg_addr <= rx;
+						output_alu_op <= "0000";
+						output_reg_wr_flag <= '1';
 					when "000"=> -- BTEQZ
 						null;
 					when "001"=> -- BTNEZ
 						null;
 					when "100"=> -- MTSP
-						null;
+						rx := '0' & input_instruction(7 downto 5);
+						rz := "1010"; --A: SP
+						output_reg_rd1 <= rx;
+						output_val1 <= input_reg_rval1;
+						output_res_reg_addr <= rz; --SP
+						output_alu_op <= "1000"; --8: val1
+						output_reg_wr_flag <= '1';
 					when others=>
 						null;
 				end case;
@@ -101,11 +122,13 @@ begin
 							when "001"=> -- JRRA
 								null;
 							when "010"=> -- MFPC
+								output_val1 <= input_pc_addr;
+								output_res_reg_addr <= rx;
+								output_alu_op <= "1000"; --8: val1
+								output_reg_wr_flag <= '1';
 							when others=>
 								null;
 						end case;
-					when "00011"=> -- SLTU
-						null;
 					when others=>
 						null;
 				end case;
@@ -118,9 +141,19 @@ begin
 			when "11110"=> 
 				case input_instruction(7 downto 0) is
 					when "00000000"=> -- MFIH
-						null;
+						rz := "1001"; --9: IH
+						output_reg_rd1 <= rz;
+						output_val1 <= input_reg_rval1;
+						output_res_reg_addr <= rx;
+						output_alu_op <= "1000"; --8: val1
+						output_reg_wr_flag <= '1';
 					when "00000001"=> -- MTIH
-						null;
+						rz := "1001"; --9: IH
+						output_reg_rd1 <= rx;
+						output_val1 <= input_reg_rval1;
+						output_res_reg_addr <= rz; --IH
+						output_alu_op <= "1000"; --8: val1
+						output_reg_wr_flag <= '1';
 					when others=>
 						null;
 				end case;
@@ -133,6 +166,8 @@ begin
 					when others=>
 						null;
 				end case;
+			when "01010"=> --SLTI
+				null;
 			when "01011"=> -- SLTUI
 				null;
 			when "11011"=> -- SW
