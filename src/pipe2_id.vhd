@@ -26,6 +26,7 @@ begin
 
 	process (input_instruction, input_reg_rval1, input_reg_rval2, input_pc_addr)
 	variable rx, ry, rz: std_logic_vector(3 downto 0);
+	variable jump_dist: std_logic_vector(15 downto 0);
 	begin
 		--Default Values
 		output_reg_rd1 <= (others => '1');
@@ -76,9 +77,21 @@ begin
 						output_alu_op <= "0000";
 						output_reg_wr_flag <= '1';
 					when "000"=> -- BTEQZ
-						null;
+						output_reg_rd1 <= "1000"; --8: T
+						if input_reg_rval1 = "0000000000000000" then
+							jump_dist <= (others => input_instruction(7));
+							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+							output_jump_addr <= jump_dist + input_pc_addr;
+							output_jump_flag = '1';
+						end if;
 					when "001"=> -- BTNEZ
-						null;
+						output_reg_rd1 <= "1000"; --8: T
+						if input_reg_rval1 /= "0000000000000000" then
+							jump_dist <= (others => input_instruction(7));
+							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+							output_jump_addr <= jump_dist + input_pc_addr;
+							output_jump_flag = '1';
+						end if;
 					when "100"=> -- MTSP
 						rx := '0' & input_instruction(7 downto 5);
 						rz := "1010"; --A: SP
@@ -112,11 +125,26 @@ begin
 						null;
 				end case;
 			when "00010"=> -- B
-				null;
+				jump_dist <= (others => input_instruction(10));
+				jump_dist(10 downto 0) <= input_instruction(10 downto 0);
+				output_jump_addr <= jump_dist + input_pc_addr;
+				output_jump_flag = '1';
 			when "00100"=> -- BEQZ
-				null;
+				output_reg_rd1 <= rx;
+				if input_reg_rval1 = "0000000000000000" then
+					jump_dist <= (others => input_instruction(7));
+					jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+					output_jump_addr <= jump_dist + input_pc_addr;
+					output_jump_flag = '1';
+				end if;
 			when "00101"=> -- BNEZ
-				null;
+				output_reg_rd1 <= rx;
+				if input_reg_rval1 /= "0000000000000000" then
+					jump_dist <= (others => input_instruction(7));
+					jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+					output_jump_addr <= jump_dist + input_pc_addr;
+					output_jump_flag = '1';
+				end if;
 			when "11101"=>
 				case input_instruction(4 downto 0) is
 					when "01010"=> -- CMP
