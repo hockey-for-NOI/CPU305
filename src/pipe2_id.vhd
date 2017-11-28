@@ -202,11 +202,28 @@ begin
 						null;
 				end case;
 			when "01101"=> -- LI
-				null;
+				output_val1(7 downto 0) <= input_instruction(7 downto 0); --zero extend
+				output_alu_op <= "1000"; --8: val1
+				output_res_reg_addr <= rx;
+				output_reg_wr_flag = '1';
 			when "10011"=> -- LW
-				null;
+				output_reg_rd1 <= rx;
+				output_val1 <= input_reg_rval1;
+				output_val2 <= (others => input_instruction(4));
+				output_val2(4 downto 0) <= input_instruction(4 downto 0);
+				output_alu_op <= "0000";
+				output_res_reg_addr <= ry;
+				output_reg_wr_flag <= '1';
+				output_mem_rd_flag <= '1';				
 			when "10010"=> -- LW_SP
-				null;
+				output_reg_rd1 <= "1010"; --A: SP
+				output_val1 <= input_reg_rval1;
+				output_val2 <= (others => input_instruction(7));
+				output_val2(7 downto 0) <= input_instruction(7 downto 0);
+				output_alu_op <= "0000";
+				output_res_reg_addr <= rx;
+				output_reg_wr_flag <= '1';
+				output_mem_rd_flag <= '1';
 			when "11110"=> 
 				case input_instruction(7 downto 0) is
 					when "00000000"=> -- MFIH
