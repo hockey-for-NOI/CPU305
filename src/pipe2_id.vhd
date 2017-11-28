@@ -263,9 +263,20 @@ begin
 						null;
 				end case;
 			when "01010"=> --SLTI
-				null;
+				output_reg_rd1 <= rx;
+				output_val1 <= input_reg_rval1;
+				output_val2 <= (others => input_instruction(7);
+				output_val2(7 downto 0) <= input_instruction(7 downto 0);
+				output_alu_op <= "1010";
+				output_res_reg_addr <= "1000"; --8: T
+				output_reg_wr_flag <= '1';
 			when "01011"=> -- SLTUI
-				null;
+				output_reg_rd1 <= rx;
+				output_val1 <= input_reg_rval1;
+				output_val2(7 downto 0) <= input_instruction(7 downto 0);
+				output_alu_op <= "0111";
+				output_res_reg_addr <= "1000"; --8: T
+				output_reg_wr_flag <= '1';
 			when "11011"=> -- SW
 				output_reg_rd1 <= rx;
 				output_reg_rd2 <= ry;
