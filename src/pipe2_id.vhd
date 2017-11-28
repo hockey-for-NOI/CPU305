@@ -267,9 +267,23 @@ begin
 			when "01011"=> -- SLTUI
 				null;
 			when "11011"=> -- SW
-				null;
+				output_reg_rd1 <= rx;
+				output_reg_rd2 <= ry;
+				output_val1 <= input_reg_rval1;
+				output_val2 <= (others => input_instruction(4));
+				output_val2(4 downto 0) <= input_instruction(4 downto 0);
+				output_val3 <= input_reg_rval2;
+				output_alu_op <= "0000";
+				output_mem_wr_flag <= '1';
 			when "11010"=> -- SW_SP
-				null;
+				output_reg_rd1 <= "1010"; --A: SP
+				output_reg_rd2 <= rx;
+				output_val1 <= input_reg_rval1;
+				output_val2 <= (others => input_instruction(7));
+				output_val2(7 downto 0) <= input_instruction(7 downto 0);
+				output_val3 <= input_reg_rval2;
+				output_alu_op <= "0000";
+				output_mem_wr_flag <= '1';
 			when others=>
 				null;
 		end case;
