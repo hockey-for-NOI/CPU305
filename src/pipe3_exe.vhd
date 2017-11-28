@@ -55,14 +55,10 @@ begin
 			when "1001" =>
 				tmp_res := input_val2;
 			when "1010" => -- < (signed)
-				if input_val1(15) = input_val2(15) then
-					if input_val1 < input_val2 then
-						tmp_res := "0000000000000001";
-					else
-						tmp_res := "0000000000000000";
-					end if;
+				if ((not input_val1(15)) & input_val1(14 downto 0)) < ((not input_val2(15)) & input_val2(14 downto 0)) then
+					tmp_res := "0000000000000001";
 				else
-					tmp_res := "000000000000000" & input_val1(15);
+					tmp_res := "0000000000000000";
 				end if;
 			when "1111" =>	--NULL
 				tmp_res := "0000000000000000";
