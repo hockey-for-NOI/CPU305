@@ -79,18 +79,18 @@ begin
 					when "000"=> -- BTEQZ
 						output_reg_rd1 <= "1000"; --8: T
 						if input_reg_rval1 = "0000000000000000" then
-							jump_dist <= (others => input_instruction(7));
-							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+							jump_dist := (others => input_instruction(7));
+							jump_dist(7 downto 0) := input_instruction(7 downto 0);
 							output_jump_addr <= jump_dist + input_pc_addr;
-							output_jump_flag = '1';
+							output_jump_flag <= '1';
 						end if;
 					when "001"=> -- BTNEZ
 						output_reg_rd1 <= "1000"; --8: T
 						if input_reg_rval1 /= "0000000000000000" then
-							jump_dist <= (others => input_instruction(7));
-							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+							jump_dist := (others => input_instruction(7));
+							jump_dist(7 downto 0) := input_instruction(7 downto 0);
 							output_jump_addr <= jump_dist + input_pc_addr;
-							output_jump_flag = '1';
+							output_jump_flag <= '1';
 						end if;
 					when "100"=> -- MTSP
 						rx := '0' & input_instruction(7 downto 5);
@@ -125,25 +125,25 @@ begin
 						null;
 				end case;
 			when "00010"=> -- B
-				jump_dist <= (others => input_instruction(10));
-				jump_dist(10 downto 0) <= input_instruction(10 downto 0);
+				jump_dist := (others => input_instruction(10));
+				jump_dist(10 downto 0) := input_instruction(10 downto 0);
 				output_jump_addr <= jump_dist + input_pc_addr;
-				output_jump_flag = '1';
+				output_jump_flag <= '1';
 			when "00100"=> -- BEQZ
 				output_reg_rd1 <= rx;
 				if input_reg_rval1 = "0000000000000000" then
-					jump_dist <= (others => input_instruction(7));
-					jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+					jump_dist := (others => input_instruction(7));
+					jump_dist(7 downto 0) := input_instruction(7 downto 0);
 					output_jump_addr <= jump_dist + input_pc_addr;
-					output_jump_flag = '1';
+					output_jump_flag <= '1';
 				end if;
 			when "00101"=> -- BNEZ
 				output_reg_rd1 <= rx;
 				if input_reg_rval1 /= "0000000000000000" then
-					jump_dist <= (others => input_instruction(7));
-					jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+					jump_dist := (others => input_instruction(7));
+					jump_dist(7 downto 0) := input_instruction(7 downto 0);
 					output_jump_addr <= jump_dist + input_pc_addr;
-					output_jump_flag = '1';
+					output_jump_flag <= '1';
 				end if;
 			when "11101"=>
 				case input_instruction(4 downto 0) is
@@ -177,19 +177,19 @@ begin
 							when "110"=> -- JALR
 								output_reg_rd1 <= rx;
 								output_jump_addr <= input_reg_rval1;
-								output_jump_flag = '1';
-								output_val1 <= input_reg_rval1 + 2；--RPC
+								output_jump_flag <= '1';
+								output_val1 <= input_reg_rval1 + 2; --RPC
 								output_res_reg_addr <= "1011"; --B: RA
 								output_alu_op <= "1000"; --8: val1
-								output_reg_wr_flag = '1';
+								output_reg_wr_flag <= '1';
 							when "000"=> -- JR
 								output_reg_rd1 <= rx;
 								output_jump_addr <= input_reg_rval1;
-								output_jump_flag = '1';
+								output_jump_flag <= '1';
 							when "001"=> -- JRRA
 								output_reg_rd1 <= "1011"; --B: RA
 								output_jump_addr <= input_reg_rval1;
-								output_jump_flag = '1';
+								output_jump_flag <= '1';
 							when "010"=> -- MFPC
 								output_val1 <= input_pc_addr;
 								output_res_reg_addr <= rx;
@@ -205,7 +205,7 @@ begin
 				output_val1(7 downto 0) <= input_instruction(7 downto 0); --zero extend
 				output_alu_op <= "1000"; --8: val1
 				output_res_reg_addr <= rx;
-				output_reg_wr_flag = '1';
+				output_reg_wr_flag <= '1';
 			when "10011"=> -- LW
 				output_reg_rd1 <= rx;
 				output_val1 <= input_reg_rval1;
@@ -265,7 +265,7 @@ begin
 			when "01010"=> --SLTI
 				output_reg_rd1 <= rx;
 				output_val1 <= input_reg_rval1;
-				output_val2 <= (others => input_instruction(7);
+				output_val2 <= (others => input_instruction(7));
 				output_val2(7 downto 0) <= input_instruction(7 downto 0);
 				output_alu_op <= "1010";
 				output_res_reg_addr <= "1000"; --8: T
