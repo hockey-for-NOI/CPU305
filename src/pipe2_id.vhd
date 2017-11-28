@@ -129,9 +129,21 @@ begin
 						output_alu_op <= "0110";
 						output_reg_wr_flag <= '1';
 					when "01100"=> -- AND
-						null;
+						output_reg_rd1 <= rx;
+						output_reg_rd2 <= ry;
+						output_val1 <= input_reg_rval1;
+						output_val2 <= input_reg_rval2;
+						output_res_reg_addr <= rx;
+						output_alu_op <= "0010";
+						output_reg_wr_flag <= '1';
 					when "01101"=> -- OR
-						null;
+						output_reg_rd1 <= rx;
+						output_reg_rd2 <= ry;
+						output_val1 <= input_reg_rval1;
+						output_val2 <= input_reg_rval2;
+						output_res_reg_addr <= rx;
+						output_alu_op <= "0011";
+						output_reg_wr_flag <= '1';
 					when "00000"=>
 						case input_instruction(7 downto 5) is
 							when "110"=> -- JALR
@@ -179,9 +191,19 @@ begin
 			when "00110"=>
 				case input_instruction(1 downto 0) is
 					when "00"=> -- SLL
-						null;
+						output_reg_rd1 <= ry;
+						output_val1 <= input_reg_rval1;
+						output_val2(2 downto 0) <= input_instruction(4 downto 2);
+						output_res_reg_addr <= rx;
+						output_alu_op <= "0100";
+						output_reg_wr_flag <= '1';
 					when "11"=> -- SRA
-						null;
+						output_reg_rd1 <= ry;
+						output_val1 <= input_reg_rval1;
+						output_val2(2 downto 0) <= input_instruction(4 downto 2);
+						output_res_reg_addr <= rx;
+						output_alu_op <= "0101";
+						output_reg_wr_flag <= '1';
 					when others=>
 						null;
 				end case;
