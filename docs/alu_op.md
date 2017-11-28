@@ -14,5 +14,6 @@
 	7: 1 < 2 (unsigned) (if 1 < 2, return 1, else return 0)
 	8: 1
 	9: 2
-	A~E: Reserved
+	A: 1 < 2 (signed) (if 1 < 2, return 1, else return 0)
+	B~E: Reserved
 	F: 0
