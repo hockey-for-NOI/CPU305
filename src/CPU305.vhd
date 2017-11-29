@@ -48,7 +48,7 @@ signal	mem_input_val, mem_output_val: std_logic_vector(15 downto 0);
 signal	wb_reg_wr_flag: std_logic;
 signal	wb_val: std_logic_vector(15 downto 0);
 signal	wb_res_reg_addr: std_logic_vector(3 downto 0);
-signal	sram1_corrupt, id_bubble: std_logic;
+signal	sram1_corrupt, id_bubble, sram2_serial_busy: std_logic;
 signal	forwarder_rd1, forwarder_rd2: std_logic_vector(3 downto 0);
 signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
@@ -80,12 +80,14 @@ begin
 		clk_wr => clk_wr,
 		rd_addr => mem2_rd_addr, rd_addr => mem2_rd_addr, rd_val => mem2_rd_val,
 		wr_addr => mem2_wr_addr, wr_addr => mem2_wr_addr, wr_val => mem2_wr_val,
+		serial_busy => mem2_serial_busy,
 		sram2_en => sram2_en, sram2_oe => sram2_oe, sram2_we => sram2_we,
 		sram2_data => sram2_data, sram2_addr => sram2_addr,
 		data_ready => data_ready, tsre => tsre, tbre => tbre
 	);
 
 	stallman_inst: entity stallman port map(
+		input_sram2_serial_busy => sram2_serial_busy,
 		input_sram1_corrupt => sram1_corrupt,
 		input_forwarder_bubble => forwarder_bubble,
 		output_stalls(4) => pc_stall,
@@ -209,7 +211,7 @@ begin
 	gate4_mem_wb_inst: entity gate4_mem_wb port map(
 		clk => clk, rst => rst,
 		stall => gate4_stall,
-		bubble => '0',
+		bubble => mem2_serial_busy,
 		input_reg_wr_flag => mem_reg_wr_flag,
 		input_res_reg_addr => mem_res_reg_addr,
 		input_mem_val => mem_output_val,
