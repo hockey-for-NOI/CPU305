@@ -127,14 +127,14 @@ begin
 			when "00010"=> -- B
 				jump_dist := (others => input_instruction(10));
 				jump_dist(10 downto 0) := input_instruction(10 downto 0);
-				output_jump_addr <= jump_dist + input_pc_addr;
+				output_jump_addr <= jump_dist + input_pc_addr + 1;
 				output_jump_flag <= '1';
 			when "00100"=> -- BEQZ
 				output_reg_rd1 <= rx;
 				if input_reg_rval1 = "0000000000000000" then
 					jump_dist := (others => input_instruction(7));
 					jump_dist(7 downto 0) := input_instruction(7 downto 0);
-					output_jump_addr <= jump_dist + input_pc_addr;
+					output_jump_addr <= jump_dist + input_pc_addr + 1;
 					output_jump_flag <= '1';
 				end if;
 			when "00101"=> -- BNEZ
@@ -142,7 +142,7 @@ begin
 				if input_reg_rval1 /= "0000000000000000" then
 					jump_dist := (others => input_instruction(7));
 					jump_dist(7 downto 0) := input_instruction(7 downto 0);
-					output_jump_addr <= jump_dist + input_pc_addr;
+					output_jump_addr <= jump_dist + input_pc_addr + 1;
 					output_jump_flag <= '1';
 				end if;
 			when "11101"=>

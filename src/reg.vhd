@@ -20,7 +20,7 @@ begin
 	
 	process(we) --set we as clk
 	begin
-		if we'event and we = '0' then
+		if rising_edge(we) then
 			regs(CONV_INTEGER(wr)) <= wval;
 		end if;
 	end process;
