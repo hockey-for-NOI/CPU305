@@ -13,9 +13,11 @@ entity gate3_exe_mem is
 		input_mem_rd_flag, input_mem_wr_flag, input_reg_wr_flag: in STD_LOGIC;
 		input_res_reg_addr: in STD_LOGIC_VECTOR(3 downto 0);
 		input_res, input_val: in STD_LOGIC_VECTOR(15 downto 0);
+		input_to_delay_data_ready: in std_logic;
 		output_mem_rd_flag, output_mem_wr_flag, output_reg_wr_flag: out STD_LOGIC;
 		output_res, output_val: out STD_LOGIC_VECTOR(15 downto 0);
 		output_res_reg_addr: out STD_LOGIC_VECTOR(3 downto 0)
+		output_delayed_data_ready: out std_logic;
 	);
 end gate3_exe_mem;
 
@@ -23,13 +25,14 @@ architecture bhv of gate3_exe_mem is
 begin
 	process(clk, rst)
 	begin
-		if rst = '0' then
+		if rst = '1' then
 			output_mem_rd_flag <= '0';
 			output_mem_wr_flag <= '0';
 			output_reg_wr_flag <= '0';
 			output_res <= (others => '0');
 			output_val <= (others => '0');
 			output_res_reg_addr <= (others => '1');
+			output_delayed_data_ready <= '0';
 		elsif rising_edge(clk) then
 			if stall = '0' then
 				if bubble = '1' then
@@ -39,6 +42,7 @@ begin
 					output_res <= (others => '0');
 					output_val <= (others => '0');
 					output_res_reg_addr <= (others => '1');
+					output_delayed_data_ready <= '0';
 				else
 					output_mem_rd_flag <= input_mem_rd_flag;
 					output_mem_wr_flag <= input_mem_wr_flag;
@@ -46,6 +50,7 @@ begin
 					output_res <= input_res;
 					output_val <= input_val;
 					output_res_reg_addr <= input_res_reg_addr;
+					output_delayed_data_ready <= input_to_delay_data_ready;
 				end if;
 			end if;
 		end if;
