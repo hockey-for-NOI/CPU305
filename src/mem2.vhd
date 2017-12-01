@@ -25,4 +25,42 @@ architecture bhv of mem2 is
 
 begin
 
+	process (rd_flag, rd_addr, wr_flag, wr_addr, wr_val, sram2_data, data_ready, tsre, tbre)
+	begin
+		rdn <= '1';
+		wrn <= '1';
+		serial_busy <= '0';
+		sram2_en <= '0';
+		sram2_oe <= clk_wr or wr_flag;
+		sram2_we <= clk_wr or (not wr_flag);
+		if (wr_flag = '1')
+			sram2_addr <= "00" & wr_addr;
+			sram2_data <= wr_val;
+			rd_val <= (others => 'X');
+			if (wr_addr = x"BF00" or wr_addr = x"BF01") then
+				if (tsre = '1' and tbre = '1') then
+					wrn <= clk_wr;
+				else
+					serial_busy <= '1';
+				end if;
+			end if;
+		elsif (rd_flag = '1')
+			sram2_addr <= "00" & rd_addr;
+			sram2_data <= (others => 'Z');
+			rd_val <= sram2_data;
+			if (rd_addr = x"BF00" or rd_addr = x"BF01") then
+				if (data_ready = '1') then
+					sram2_oe <= '1';
+					rdn <= clk_wr;
+				else
+					serial_busy <= '1';
+				end if;
+			end if;
+		else
+			sram2_addr <= (others => 'X');
+			sram2_data <= (others => 'Z');
+			rd_val <= (others => 'X');
+		end if;
+	end process;
+
 end bhv;

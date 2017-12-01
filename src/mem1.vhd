@@ -39,10 +39,12 @@ begin
 			rd_val <= (others => 'X');
 		elsif (rd_flag = '1') then
 			sram1_addr <= "00" & rd_addr;
+			sram1_data <= (others => 'Z');
 			if_val <= (11 => '1', others => '0'); -- NOP
 			rd_val <= sram1_data;
 		else
 			sram1_addr <= "00" & if_addr;
+			sram1_data <= (others => 'Z');
 			if_val <= sram1_data;
 			rd_Val <= (others => 'X');
 		end if;
