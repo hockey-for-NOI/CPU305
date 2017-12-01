@@ -14,8 +14,8 @@ entity mem2 is
 		wr_val: in std_logic_vector(15 downto 0);
 		serial_busy: out std_logic;
 		sram2_en, sram2_oe, sram2_we: out std_logic;
-		sram2_data: inout std_logic_vector(25 downto 0);
-		sram2_addr: out std_logic_vector(27 downto 0);
+		sram2_data: inout std_logic_vector(15 downto 0);
+		sram2_addr: out std_logic_vector(17 downto 0);
 		data_ready, tsre, tbre: in std_logic;
 		rdn, wrn: out std_logic
 	);
@@ -25,7 +25,7 @@ architecture bhv of mem2 is
 
 begin
 
-	process (rd_flag, rd_addr, wr_flag, wr_addr, wr_val, sram2_data, data_ready, tsre, tbre)
+	process (rd_flag, rd_addr, wr_flag, wr_addr, wr_val, sram2_data, data_ready, tsre, tbre, clk_wr)
 	begin
 		rdn <= '1';
 		wrn <= '1';
@@ -33,22 +33,22 @@ begin
 		sram2_en <= '0';
 		sram2_oe <= clk_wr or wr_flag;
 		sram2_we <= clk_wr or (not wr_flag);
-		if (wr_flag = '1')
+		if (wr_flag = '1') then
 			sram2_addr <= "00" & wr_addr;
 			sram2_data <= wr_val;
 			rd_val <= (others => 'X');
-			if (wr_addr = x"BF00" or wr_addr = x"BF01") then
+			if (wr_addr = x"BF00") then
 				if (tsre = '1' and tbre = '1') then
 					wrn <= clk_wr;
 				else
 					serial_busy <= '1';
 				end if;
 			end if;
-		elsif (rd_flag = '1')
+		elsif (rd_flag = '1') then
 			sram2_addr <= "00" & rd_addr;
 			sram2_data <= (others => 'Z');
 			rd_val <= sram2_data;
-			if (rd_addr = x"BF00" or rd_addr = x"BF01") then
+			if (rd_addr = x"BF00") then
 				if (data_ready = '1') then
 					sram2_oe <= '1';
 					rdn <= clk_wr;
