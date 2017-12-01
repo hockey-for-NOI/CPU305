@@ -12,14 +12,9 @@ end clkman;
 
 architecture Behavioral of clkman is
 
-signal t : STD_LOGIC_VECTOR(1 downto 0);
 begin
-	process(clk_in)
-	begin
-		if rising_edge(clk_in) then 
-			clk <= t(1);
-			clk_wr <= t(0) or t(1);
-			t <= t + 1;
-		end if;		
-	end process;
+
+	clk <= clk_in;
+	clk_wr <= not clk_in;
+
 end Behavioral;

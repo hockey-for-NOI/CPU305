@@ -30,7 +30,7 @@ begin
 	sram1_we <= clk_wr or (not wr_flag);
 	corrupt <= rd_flag or wr_flag;
 
-	process(rd_flag, wr_flag, rd_addr, wr_addr, wr_val, sram1_data)
+	process(rd_flag, wr_flag, rd_addr, wr_addr, wr_val, sram1_data, if_addr)
 	begin
 		if (wr_flag = '1') then
 			sram1_addr <= "00" & wr_addr;
@@ -39,12 +39,14 @@ begin
 			rd_val <= (others => 'X');
 		elsif (rd_flag = '1') then
 			sram1_addr <= "00" & rd_addr;
+			sram1_data <= (others => 'Z');
 			if_val <= (11 => '1', others => '0'); -- NOP
 			rd_val <= sram1_data;
 		else
 			sram1_addr <= "00" & if_addr;
+			sram1_data <= (others => 'Z');
 			if_val <= sram1_data;
-			rd_Val <= (others => 'X');
+			rd_val <= (others => 'X');
 		end if;
 	end process;
 

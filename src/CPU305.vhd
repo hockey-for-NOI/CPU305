@@ -44,6 +44,7 @@ signal	exe_res: std_logic_vector(15 downto 0);
 signal	mem_addr: std_logic_vector(15 downto 0);
 signal	mem_res_reg_addr: std_logic_vector(3 downto 0);
 signal	mem_mem_rd_flag, mem_mem_wr_flag, mem_reg_wr_flag: std_logic;
+signal	delayed_data_ready, delayed_tsre, delayed_tbre: std_logic;
 signal	mem_input_val, mem_output_val: std_logic_vector(15 downto 0);
 signal	wb_reg_wr_flag: std_logic;
 signal	wb_val: std_logic_vector(15 downto 0);
@@ -56,7 +57,7 @@ signal	forwarder_bubble: std_logic;
 begin
 
 	clkman_inst: entity clkman port map(
-		clk_in => clk_press,
+		clk_in => clk_50m,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 	);
 
@@ -76,14 +77,25 @@ begin
 		corrupt => sram1_corrupt
 	);
 
+	serial_delayer_inst: entity serial_delayer port map(
+		clk => clk, rst => rst,
+		input_data_ready => data_ready,
+		input_tsre => tsre,
+		input_tbre => tbre,
+		output_data_ready => delayed_data_ready,
+		output_tsre => delayed_tsre,
+		output_tbre => delayed_tbre
+	);
+
 	mem2_inst: entity mem2 port map(
 		clk_wr => clk_wr,
-		rd_addr => mem2_rd_addr, rd_addr => mem2_rd_addr, rd_val => mem2_rd_val,
-		wr_addr => mem2_wr_addr, wr_addr => mem2_wr_addr, wr_val => mem2_wr_val,
-		serial_busy => mem2_serial_busy,
+		rd_flag => mem2_rd_flag, rd_addr => mem2_rd_addr, rd_val => mem2_rd_val,
+		wr_flag => mem2_wr_flag, wr_addr => mem2_wr_addr, wr_val => mem2_wr_val,
+		serial_busy => sram2_serial_busy,
 		sram2_en => sram2_en, sram2_oe => sram2_oe, sram2_we => sram2_we,
 		sram2_data => sram2_data, sram2_addr => sram2_addr,
-		data_ready => data_ready, tsre => tsre, tbre => tbre
+		data_ready => delayed_data_ready, tsre => delayed_tsre, tbre => delayed_tbre,
+		rdn => rdn, wrn => wrn
 	);
 
 	stallman_inst: entity stallman port map(
@@ -211,7 +223,7 @@ begin
 	gate4_mem_wb_inst: entity gate4_mem_wb port map(
 		clk => clk, rst => rst,
 		stall => gate4_stall,
-		bubble => mem2_serial_busy,
+		bubble => sram2_serial_busy,
 		input_reg_wr_flag => mem_reg_wr_flag,
 		input_res_reg_addr => mem_res_reg_addr,
 		input_mem_val => mem_output_val,

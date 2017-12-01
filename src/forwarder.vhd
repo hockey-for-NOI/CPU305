@@ -25,7 +25,7 @@ begin
 	reg_rd1 <= rd1;
 	reg_rd2 <= rd2;
 
-	process(rd1, reg_rval1, rd1, reg_rval2,
+	process(rd1, reg_rval1, rd2, reg_rval2,
 				exe_reg_wr_flag, exe_mem_rd_flag, exe_forward_addr, exe_forward_val,
 				mem_forward_flag, mem_forward_addr, mem_forward_val)
 	begin

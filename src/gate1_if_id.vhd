@@ -16,7 +16,7 @@ architecture bhv of gate1_if_id is
 begin
 	process(clk, rst)
 	begin
-		if rst = '0' then
+		if rst = '1' then
 			output_instruction <= "0000100000000000"; --NOP
 			output_pc_addr <= (others => '0');
 		elsif rising_edge(clk) then
