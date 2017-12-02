@@ -73,6 +73,7 @@ begin
 	);
 
 	reg_inst: entity reg port map(
+		clk_wr => clk_wr,
 		rd1 => reg_rd1, rval1 => reg_rval1,
 		rd2 => reg_rd2, rval2 => reg_rval2,
 		wr => reg_wr, we => reg_we, wval => reg_wval
@@ -244,7 +245,6 @@ begin
 	);
 
 	pipe5_wb_inst: entity pipe5_wb port map(
-		clk_wr => clk_wr,
 		input_reg_wr_flag => wb_reg_wr_flag,
 		input_val => wb_val,
 		input_res_reg_addr => wb_res_reg_addr,
