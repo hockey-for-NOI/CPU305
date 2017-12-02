@@ -26,7 +26,7 @@ architecture bhv of mem1 is
 begin
 
 	sram1_en <= '0';
-	sram1_oe <= clk_wr or wr_flag;
+	sram1_oe <= wr_flag;
 	sram1_we <= clk_wr or (not wr_flag);
 	corrupt <= rd_flag or wr_flag;
 

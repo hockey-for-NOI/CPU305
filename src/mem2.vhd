@@ -31,7 +31,7 @@ begin
 		wrn <= '1';
 		serial_busy <= '0';
 		sram2_en <= '0';
-		sram2_oe <= clk_wr or wr_flag;
+		sram2_oe <= wr_flag;
 		sram2_we <= clk_wr or (not wr_flag);
 		if (wr_flag = '1') then
 			sram2_addr <= "00" & wr_addr;
