@@ -20,7 +20,7 @@ architecture bhv of gate2_id_exe is
 begin
 	process(clk, rst)
 	begin
-		if rst = '1' then
+		if rst = '0' then
 			output_val1 <= (others => '0');
 			output_val2 <= (others => '0');
 			output_val3 <= (others => '0');

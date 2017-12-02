@@ -27,7 +27,7 @@ signal	mem1_rd_flag, mem1_wr_flag, mem2_rd_flag, mem2_wr_flag: std_logic;
 signal	mem1_rd_addr, mem1_wr_addr, mem2_rd_addr, mem2_wr_addr: std_logic_vector(15 downto 0);
 signal	mem1_rd_val, mem1_wr_val, mem2_rd_val, mem2_wr_val: std_logic_vector(15 downto 0);
 signal	pc_jump_flag, pc_stall: std_logic;
-signal	pc_jump_addr, pc_addr: std_logic_vector(15 downto 0);
+signal	pc_jump_addr: std_logic_vector(15 downto 0);
 signal	if_instruction: std_logic_vector(15 downto 0);
 signal	if_pc_addr, id_pc_addr: std_logic_vector(15 downto 0);
 signal	gate1_stall, gate2_stall, gate3_stall, gate4_stall: std_logic;
@@ -55,9 +55,20 @@ signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
 
 begin
-
+	debug0 <= if_pc_addr;
+	debug1(6) <= '1';
+	debug1(5) <= pc_jump_flag;
+	debug1(4) <= pc_stall;
+	debug1(3) <= gate1_stall;
+	debug1(2) <= gate2_stall;
+	debug1(1) <= gate3_stall;
+	debug1(0) <= gate4_stall;
+	debug2(0) <= clk;
+	debug2(1) <= clk_wr;
+	debug2(2) <= rst;
+	debug2(6 downto 3) <= (others => '0');
 	clkman_inst: entity clkman port map(
-		clk_in => clk_50m,
+		clk_in => clk_press,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 	);
 
