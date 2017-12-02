@@ -23,7 +23,7 @@ architecture bhv of gate3_exe_mem is
 begin
 	process(clk, rst)
 	begin
-		if rst = '1' then
+		if rst = '0' then
 			output_mem_rd_flag <= '0';
 			output_mem_wr_flag <= '0';
 			output_reg_wr_flag <= '0';

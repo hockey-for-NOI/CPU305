@@ -17,7 +17,7 @@ begin
 
 	process(clk, rst, input_data_ready, input_tsre, input_tbre)
 	begin
-		if (rst = '1') then
+		if (rst = '0') then
 			output_data_ready <= '0';
 			output_tsre <= '0';
 			output_tbre <= '0';

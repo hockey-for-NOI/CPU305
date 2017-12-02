@@ -20,7 +20,7 @@ architecture bhv of gate4_mem_wb is
 begin
 	process(clk, rst)
 	begin
-		if rst = '1' then
+		if rst = '0' then
 			output_reg_wr_flag <= '0';
 			output_val <= (others => '0');
 			output_res_reg_addr <= (others => '1');
