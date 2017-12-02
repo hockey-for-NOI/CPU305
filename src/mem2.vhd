@@ -56,6 +56,8 @@ begin
 				else
 					serial_busy <= '1';
 				end if;
+			elsif (rd_addr = x"BF01") then
+				rd_val <= x"0003";
 			end if;
 		else
 			sram2_addr <= (others => 'X');
