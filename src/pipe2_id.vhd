@@ -16,8 +16,7 @@ entity pipe2_id is
 		output_mem_wr_flag: out std_logic;
 		output_reg_wr_flag: out std_logic;
 		output_jump_flag: out std_logic;
-		output_jump_addr: out std_logic_vector(15 downto 0);
-		debug_jump_dist: out std_logic_vector(15 downto 0)
+		output_jump_addr: out std_logic_vector(15 downto 0)
 	);
 end pipe2_id;
 
@@ -25,8 +24,6 @@ architecture bhv of pipe2_id is
 	signal rx, ry, rz: std_logic_vector(3 downto 0);
 	signal jump_dist: std_logic_vector(15 downto 0);
 begin
-
-	debug_jump_dist <= jump_dist;
 	
 	process (input_instruction, input_reg_rval1, input_reg_rval2, input_pc_addr)
 	begin
@@ -83,7 +80,7 @@ begin
 						if input_reg_rval1 = "0000000000000000" then
 							jump_dist <= (others => input_instruction(7));
 							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
-							output_jump_addr <= jump_dist + input_pc_addr;
+							output_jump_addr <= jump_dist + input_pc_addr + 1;
 							output_jump_flag <= '1';
 						end if;
 					when "001"=> -- BTNEZ
@@ -91,7 +88,7 @@ begin
 						if input_reg_rval1 /= "0000000000000000" then
 							jump_dist <= (others => input_instruction(7));
 							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
-							output_jump_addr <= jump_dist + input_pc_addr;
+							output_jump_addr <= jump_dist + input_pc_addr + 1;
 							output_jump_flag <= '1';
 						end if;
 					when "100"=> -- MTSP
@@ -127,7 +124,7 @@ begin
 						null;
 				end case;
 			when "00010"=> -- B
-				jump_dist(15 downto 11) <= (others => input_instruction(10));
+				jump_dist <= (others => input_instruction(10));
 				jump_dist(10 downto 0) <= input_instruction(10 downto 0);
 				--jump_dist <= x"FFFA";
 				output_jump_addr <= jump_dist + input_pc_addr + 1;
@@ -194,7 +191,7 @@ begin
 								output_jump_addr <= input_reg_rval1;
 								output_jump_flag <= '1';
 							when "010"=> -- MFPC
-								output_val1 <= input_pc_addr;
+								output_val1 <= input_pc_addr + 1;
 								output_res_reg_addr <= rx;
 								output_alu_op <= "1000"; --8: val1
 								output_reg_wr_flag <= '1';

@@ -53,16 +53,15 @@ signal	sram1_corrupt, id_bubble, sram2_serial_busy: std_logic;
 signal	forwarder_rd1, forwarder_rd2: std_logic_vector(3 downto 0);
 signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
-signal   debug_jump_dist : std_logic_vector(15 downto 0);
 
 begin
 	--debug0 <= forwarder_rval2;
-	debug0 <= debug_jump_dist;
+	debug0 <= if_pc_addr;
 	debug1 <= exe_val2(6 downto 0);
 	--debug1 <= (others => '0');
 	debug2(6 downto 0) <= (others => '0');
 	clkman_inst: entity clkman port map(
-		clk_in => clk_press,
+		clk_in => clk_50m,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 	);
 
@@ -164,8 +163,7 @@ begin
 		output_mem_wr_flag => id_mem_wr_flag,
 		output_reg_wr_flag => id_reg_wr_flag,
 		output_jump_flag => pc_jump_flag,
-		output_jump_addr => pc_jump_addr,
-		debug_jump_dist => debug_jump_dist
+		output_jump_addr => pc_jump_addr
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(

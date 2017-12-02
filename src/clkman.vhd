@@ -16,10 +16,10 @@ signal t: std_logic_vector(1 downto 0);
 
 begin
 
-	clk <= clk_in;
-	clk_wr <= not clk_in;
---	clk <= t(1);
---	clk_wr <= not t(1);
+--	clk <= clk_in;
+--	clk_wr <= not clk_in;
+	clk <= t(1);
+	clk_wr <= t(1) or (not t(0));
 
 	process(clk_in)
 	begin
