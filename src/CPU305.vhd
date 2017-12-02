@@ -55,15 +55,11 @@ signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
 
 begin
-	debug0 <= id_instruction;
-	debug1(6) <= if_instruction(11);
-	debug1(5) <= pc_jump_flag;
-	debug1(4) <= pc_stall;
-	debug1(3) <= gate1_stall;
-	debug1(2) <= gate2_stall;
-	debug1(1) <= gate3_stall;
-	debug1(0) <= gate4_stall;
-	debug2(6 downto 0) <= forwarder_rval1(6 downto 0);
+	--debug0 <= forwarder_rval2;
+	debug0 <= exe_val1;
+	debug1 <= exe_val2(6 downto 0);
+	--debug1 <= (others => '0');
+	debug2(6 downto 0) <= (others => '0');
 	clkman_inst: entity clkman port map(
 		clk_in => clk_press,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
@@ -129,7 +125,7 @@ begin
 		exe_mem_rd_flag => exe_mem_rd_flag,
 		exe_forward_addr => exe_res_reg_addr,
 		exe_forward_val => exe_res,
-		mem_forward_flag => mem_mem_rd_flag,
+		mem_forward_flag => mem_reg_wr_flag,
 		mem_forward_addr => mem_res_reg_addr,
 		mem_forward_val => mem_output_val,
 		forwarder_bubble => forwarder_bubble

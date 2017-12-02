@@ -39,7 +39,8 @@ begin
 			rd_val <= (others => 'X');
 			if (wr_addr = x"BF00") then
 				if (tsre = '1' and tbre = '1') then
-					wrn <= clk_wr;
+					wrn <= not clk_wr;
+					sram2_we <= '1';
 				else
 					serial_busy <= '1';
 				end if;
@@ -51,7 +52,7 @@ begin
 			if (rd_addr = x"BF00") then
 				if (data_ready = '1') then
 					sram2_oe <= '1';
-					rdn <= clk_wr;
+					rdn <= not clk_wr;
 				else
 					serial_busy <= '1';
 				end if;
