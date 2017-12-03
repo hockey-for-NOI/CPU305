@@ -89,7 +89,7 @@ begin
 	);
 
 	reg_inst: entity reg port map(
-		clk_wr => clk_wr,
+		clk => clk,
 		rd1 => reg_rd1, rval1 => reg_rval1,
 		rd2 => reg_rd2, rval2 => reg_rval2,
 		wr => reg_wr, we => reg_we, wval => reg_wval
