@@ -13,7 +13,15 @@ entity CPU is
 		data_ready, tsre, tbre: in std_logic;
 		rdn, wrn: out std_logic;
 		debug0: out std_logic_vector(15 downto 0);
-		debug1, debug2: out std_logic_vector(6 downto 0)
+		debug1, debug2: out std_logic_vector(6 downto 0);
+		flash_addr : out std_logic_vector(22 downto 0);
+		flash_data : inout std_logic_vector(15 downto 0);
+		flash_byte : out std_logic;
+		flash_vpen : out std_logic;
+		flash_rp : out std_logic;
+		flash_ce : out std_logic;
+		flash_oe : out std_logic;
+		flash_we : out std_logic
 	);
 end CPU;
 
@@ -53,6 +61,11 @@ signal	sram1_corrupt, id_bubble, sram2_serial_busy: std_logic;
 signal	forwarder_rd1, forwarder_rd2: std_logic_vector(3 downto 0);
 signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
+signal  mem1_sram1_en, mem1_sram1_oe, mem1_sram1_we : std_logic;
+signal  flash_sram1_en, flash_sram1_oe, flash_sram1_we : std_logic;
+signal  mem1_sram1_data, flash_sram1_data : std_logic_vector(15 downto 0);
+signal  mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
+signal  flash_finished : std_logic;
 
 begin
 	--debug0 <= forwarder_rval2;
@@ -60,6 +73,16 @@ begin
 	debug1 <= exe_val2(6 downto 0);
 	--debug1 <= (others => '0');
 	debug2(6 downto 0) <= (others => '0');
+	with flash_finished select
+		sram1_addr <= mem1_sram1_addr when '1', flash_sram1_addr when '0';
+	with flash_finished select --???
+		sram1_data <= mem1_sram1_data when '1', flash_sram1_data when '0';
+	with flash_finished select
+		sram1_en <= mem1_sram1_en when '1', flash_sram1_en when '0';
+	with flash_finished select
+		sram1_oe <= mem1_sram1_oe when '1', flash_sram1_oe when '0';
+	with flash_finished select
+		sram1_we <= mem1_sram1_we when '1', flash_sram1_we when '0';
 	clkman_inst: entity clkman port map(
 		clk_in => clk_50m,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
@@ -77,13 +100,23 @@ begin
 		if_addr => if_pc_addr, if_val => if_instruction,
 		rd_flag => mem1_rd_flag, rd_addr => mem1_rd_addr, rd_val => mem1_rd_val,
 		wr_flag => mem1_wr_flag, wr_addr => mem1_wr_addr, wr_val => mem1_wr_val,
-		sram1_en => sram1_en, sram1_oe => sram1_oe, sram1_we => sram1_we,
-		sram1_data => sram1_data, sram1_addr => sram1_addr,
+		sram1_en => mem1_sram1_en, sram1_oe => mem1_sram1_oe, sram1_we => mem1_sram1_we,
+		sram1_data => mem1_sram1_data, sram1_addr => mem1_sram1_addr,
 		corrupt => sram1_corrupt
+	);
+	flash_inst: entity flash port map(
+		clk => clk, rst => rst, --clk??
+		sram1_addr => flash_sram1_addr,	sram1_data => flash_sram1_data,				
+		sram1_en => flash_sram1_en, sram1_oe => flash_sram1_oe, sram1_we =>flash_sram1_we,
+		flash_finished =>flash_finished,
+		flash_addr => flash_addr, flash_data => flash_data,		
+		flash_byte => flash_byte, flash_vpen flash_vpen,
+		flash_rp => flash_rp, flash_ce => flash_ce,
+		flash_oe => flash_oe, flash_we => flash_we
 	);
 
 	serial_delayer_inst: entity serial_delayer port map(
-		clk => clk, rst => rst,
+		clk => clk, rst => flash_finished,
 		input_data_ready => data_ready,
 		input_tsre => tsre,
 		input_tbre => tbre,
@@ -132,13 +165,13 @@ begin
 	);
 
 	pc_inst: entity PC port map(
-		clk => clk, rst => rst,
+		clk => clk, rst => flash_finished,
 		jump_flag => pc_jump_flag, jump_addr => pc_jump_addr,
 		stall => pc_stall, pc_addr => if_pc_addr
 	);
 
 	gate1_if_id_inst: entity gate1_if_id port map(
-		clk => clk, rst => rst,
+		clk => clk, rst => flash_finished,
 		stall => gate1_stall,
 		bubble => '0',
 		input_instruction => if_instruction,
@@ -167,7 +200,7 @@ begin
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(
-		clk => clk, rst => rst,
+		clk => clk, rst => flash_finished,
 		stall => gate2_stall,
 		bubble => forwarder_bubble,
 		input_val1 => id_val1,
@@ -196,7 +229,7 @@ begin
 	);
 
 	gate3_exe_mem_inst: entity gate3_exe_mem port map(
-		clk => clk, rst => rst,
+		clk => clk, rst => flash_finished,
 		stall => gate3_stall,
 		bubble => sram1_corrupt,
 		input_res => exe_res,
@@ -226,7 +259,7 @@ begin
 	);
 
 	gate4_mem_wb_inst: entity gate4_mem_wb port map(
-		clk => clk, rst => rst,
+		clk => clk, rst => flash_finished,
 		stall => gate4_stall,
 		bubble => sram2_serial_busy,
 		input_reg_wr_flag => mem_reg_wr_flag,
