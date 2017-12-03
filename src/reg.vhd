@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity reg is
 	port(
-		clk_wr: in std_logic;
+		clk: in std_logic;
 		rd1, rd2, wr : in STD_LOGIC_VECTOR(3 DOWNTO 0);
 		we : in STD_LOGIC;
 		wval : in STD_LOGIC_VECTOR(15 downto 0);
@@ -21,7 +21,7 @@ begin
 	
 	process(we) --set we as clk
 	begin
-		if rising_edge(clk_wr) then
+		if falling_edge(clk) then
 			if we = '1' then
 				regs(CONV_INTEGER(wr)) <= wval;
 			end if;

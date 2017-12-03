@@ -49,15 +49,14 @@ begin
 			sram2_addr <= "00" & rd_addr;
 			sram2_data <= (others => 'Z');
 			rd_val <= sram2_data;
-			if (rd_addr = x"BF00") then
-				if (data_ready = '1') then
-					sram2_oe <= '1';
-					rdn <= clk_wr;
-				else
-					serial_busy <= '1';
-				end if;
-			elsif (rd_addr = x"BF01") then
-				rd_val <= x"0003";
+			if (rd_addr = x"BF01") then
+				rd_val <= (1 => data_ready, 0 => (tbre and tsre), others => '0');
+			elsif (rd_addr = x"BF00") then
+				sram2_en <= '1';
+				sram2_oe <= '1';
+				sram2_we <= '1';
+				rdn <= '0';
+				wrn <= '1';
 			end if;
 		else
 			sram2_addr <= (others => 'X');

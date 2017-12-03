@@ -13,8 +13,9 @@ end serial_delayer;
 
 architecture bhv of serial_delayer is
 
-begin
+	signal pad : std_logic_vector(2 downto 0);
 
+begin
 	process(clk, rst, input_data_ready, input_tsre, input_tbre)
 	begin
 		if (rst = '0') then
@@ -22,9 +23,12 @@ begin
 			output_tsre <= '0';
 			output_tbre <= '0';
 		elsif rising_edge(clk) then
-			output_data_ready <= input_data_ready;
-			output_tsre <= input_tsre;
-			output_tbre <= input_tbre;
+			pad(0) <= input_data_ready;
+			pad(1) <= input_tsre;
+			pad(2) <= input_tbre;
+			output_data_ready <= pad(0);
+			output_tsre <= pad(1);
+			output_tbre <= pad(2);
 		end if;
 	end process;
 
