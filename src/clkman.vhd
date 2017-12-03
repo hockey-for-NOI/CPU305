@@ -18,8 +18,8 @@ begin
 
 --	clk <= clk_in;
 --	clk_wr <= not clk_in;
-	clk <= t(1);
-	clk_wr <= t(1) or (not t(0));
+	clk <= not t(1);
+	clk_wr <= not(t(0) xor t(1));
 
 	process(clk_in)
 	begin
