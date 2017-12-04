@@ -10,7 +10,7 @@ entity flash is
 		rst : in std_logic;
 
 		sram1_addr : out std_logic_vector(17 downto 0); 	--sram1地址总线
-		sram1_data : inout std_logic_vector(15 downto 0);--sram1数据总线
+		sram1_data : out std_logic_vector(15 downto 0);--sram1数据总线
 				
 		sram1_en : out std_logic;		--sram1使能，='1'禁止，永远等于'0'
 		sram1_oe : out std_logic;		--sram1读使能，='1'禁止
@@ -123,7 +123,6 @@ begin
 					end case;
 					
 					if (current_addr > x"0249") then
-						flash_finished_signal <= '1';
 						flash_byte <= '1';
 						flash_vpen <= '1';
 						flash_rp <= '1';
@@ -132,6 +131,7 @@ begin
 						sram1_addr(17 downto 16) <= "00";
 						sram1_oe <= '1';
 						sram1_we <= '1';
+						flash_finished_signal <= '1';
 					end if;
 				else 
 					cnt <= cnt + 1;

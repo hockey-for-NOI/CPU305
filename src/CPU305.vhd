@@ -64,7 +64,7 @@ signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
 signal  mem1_sram1_en, mem1_sram1_oe, mem1_sram1_we : std_logic;
 signal  flash_sram1_en, flash_sram1_oe, flash_sram1_we : std_logic;
-signal  mem1_sram1_data, flash_sram1_data : std_logic_vector(15 downto 0);
+signal  mem1_sram1_data_in, mem1_sram1_data_out, flash_sram1_data : std_logic_vector(15 downto 0);
 signal  mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
 signal  flash_finished : std_logic;
 
@@ -73,18 +73,40 @@ begin
 	debug0 <= if_pc_addr;
 	debug1 <= exe_val2(6 downto 0);
 	--debug1 <= (others => '0');
-	debug2(6 downto 0) <= (others => '0');
+	debug2(4 downto 0) <= (others => '0');
+	debug2(5) <= rst;
+	debug2(6) <= flash_finished;
 	rst <= rst_press and flash_finished;
 	with flash_finished select
 		sram1_addr <= mem1_sram1_addr when '1', flash_sram1_addr when others;
-	with flash_finished select --???
-		sram1_data <= mem1_sram1_data when '1', flash_sram1_data when others;
+--	with flash_finished select --??
+--		sram1_data <= mem1_sram1_data_in when '1', flash_sram1_data when others;
+--	mem1_sram1_data_out <= sram1_data;
+	process(mem1_sram1_data_out, mem1_wr_flag, flash_sram1_data)
+	begin
+		if (flash_finished = '0') then
+			sram1_data <= flash_sram1_data;
+		else
+			if (mem1_wr_flag = '0') then
+				sram1_data <= (others=>'Z');
+				mem1_sram1_data_in <= sram1_data;
+			else
+				sram1_data <= mem1_sram1_data_out;
+			end if;
+		end if;
+	end process;
 	with flash_finished select
 		sram1_en <= mem1_sram1_en when '1', flash_sram1_en when others;
 	with flash_finished select
 		sram1_oe <= mem1_sram1_oe when '1', flash_sram1_oe when others;
 	with flash_finished select
 		sram1_we <= mem1_sram1_we when '1', flash_sram1_we when others;
+	--rst <= rst_press;
+	--sram1_addr <= mem1_sram1_addr;
+	--sram1_data <= mem1_sram1_data;
+	--sram1_en <= mem1_sram1_en;
+	--sram1_oe <= mem1_sram1_oe;
+	--sram1_we <= mem1_sram1_we;
 	clkman_inst: entity clkman port map(
 		clk_in => clk_50m,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
@@ -103,7 +125,10 @@ begin
 		rd_flag => mem1_rd_flag, rd_addr => mem1_rd_addr, rd_val => mem1_rd_val,
 		wr_flag => mem1_wr_flag, wr_addr => mem1_wr_addr, wr_val => mem1_wr_val,
 		sram1_en => mem1_sram1_en, sram1_oe => mem1_sram1_oe, sram1_we => mem1_sram1_we,
-		sram1_data => mem1_sram1_data, sram1_addr => mem1_sram1_addr,
+		--sram1_data => mem1_sram1_data, 
+		sram1_data_in => mem1_sram1_data_in,
+		sram1_data_out => mem1_sram1_data_out,
+		sram1_addr => mem1_sram1_addr,
 		corrupt => sram1_corrupt
 	);
 	flash_inst: entity flash port map(
