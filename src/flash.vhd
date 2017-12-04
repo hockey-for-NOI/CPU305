@@ -31,7 +31,7 @@ entity flash is
 	);
 end flash;
 
-architecture Behavioral of MemoryUnit is
+architecture bhv of flash is
 
 	signal flash_finished_signal : std_logic := '0';
 	signal flash_state : std_logic_vector(2 downto 0) := "001";
@@ -146,5 +146,5 @@ begin
 	flash_finished <= flash_finished_signal;
 	
 	
-end Behavioral;
+end bhv;
 

@@ -5,7 +5,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity CPU is
 	port(
-		start, clk_press, clk_50m, rst: in std_logic;
+		clk_press, clk_50m, rst_press: in std_logic;
 		sram1_en, sram1_oe, sram1_we: out std_logic;
 		sram2_en, sram2_oe, sram2_we: out std_logic;
 		sram1_data, sram2_data: inout std_logic_vector(15 downto 0);
@@ -21,13 +21,14 @@ entity CPU is
 		flash_rp : out std_logic;
 		flash_ce : out std_logic;
 		flash_oe : out std_logic;
-		flash_we : out std_logic
+		flash_we : out std_logic;
+		rst_flash : in std_logic
 	);
 end CPU;
 
 architecture bhv of CPU is
 
-signal	clk, clk_wr: std_logic;
+signal	clk, clk_wr, rst: std_logic;
 signal	reg_rd1, reg_rd2, reg_wr: std_logic_vector(3 downto 0);
 signal	reg_rval1, reg_rval2, reg_wval: std_logic_vector(15 downto 0);
 signal	reg_we: std_logic;
@@ -73,16 +74,17 @@ begin
 	debug1 <= exe_val2(6 downto 0);
 	--debug1 <= (others => '0');
 	debug2(6 downto 0) <= (others => '0');
+	rst <= rst_press and flash_finished;
 	with flash_finished select
-		sram1_addr <= mem1_sram1_addr when '1', flash_sram1_addr when '0';
+		sram1_addr <= mem1_sram1_addr when '1', flash_sram1_addr when others;
 	with flash_finished select --???
-		sram1_data <= mem1_sram1_data when '1', flash_sram1_data when '0';
+		sram1_data <= mem1_sram1_data when '1', flash_sram1_data when others;
 	with flash_finished select
-		sram1_en <= mem1_sram1_en when '1', flash_sram1_en when '0';
+		sram1_en <= mem1_sram1_en when '1', flash_sram1_en when others;
 	with flash_finished select
-		sram1_oe <= mem1_sram1_oe when '1', flash_sram1_oe when '0';
+		sram1_oe <= mem1_sram1_oe when '1', flash_sram1_oe when others;
 	with flash_finished select
-		sram1_we <= mem1_sram1_we when '1', flash_sram1_we when '0';
+		sram1_we <= mem1_sram1_we when '1', flash_sram1_we when others;
 	clkman_inst: entity clkman port map(
 		clk_in => clk_50m,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
@@ -105,18 +107,18 @@ begin
 		corrupt => sram1_corrupt
 	);
 	flash_inst: entity flash port map(
-		clk => clk, rst => rst, --clk??
+		clk => clk, rst => rst_flash, --clk??
 		sram1_addr => flash_sram1_addr,	sram1_data => flash_sram1_data,				
 		sram1_en => flash_sram1_en, sram1_oe => flash_sram1_oe, sram1_we =>flash_sram1_we,
 		flash_finished =>flash_finished,
 		flash_addr => flash_addr, flash_data => flash_data,		
-		flash_byte => flash_byte, flash_vpen flash_vpen,
+		flash_byte => flash_byte, flash_vpen => flash_vpen,
 		flash_rp => flash_rp, flash_ce => flash_ce,
 		flash_oe => flash_oe, flash_we => flash_we
 	);
 
 	serial_delayer_inst: entity serial_delayer port map(
-		clk => clk, rst => flash_finished,
+		clk => clk, rst => rst,
 		input_data_ready => data_ready,
 		input_tsre => tsre,
 		input_tbre => tbre,
@@ -165,13 +167,13 @@ begin
 	);
 
 	pc_inst: entity PC port map(
-		clk => clk, rst => flash_finished,
+		clk => clk, rst => rst,
 		jump_flag => pc_jump_flag, jump_addr => pc_jump_addr,
 		stall => pc_stall, pc_addr => if_pc_addr
 	);
 
 	gate1_if_id_inst: entity gate1_if_id port map(
-		clk => clk, rst => flash_finished,
+		clk => clk, rst => rst,
 		stall => gate1_stall,
 		bubble => '0',
 		input_instruction => if_instruction,
@@ -200,7 +202,7 @@ begin
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(
-		clk => clk, rst => flash_finished,
+		clk => clk, rst => rst,
 		stall => gate2_stall,
 		bubble => forwarder_bubble,
 		input_val1 => id_val1,
@@ -229,7 +231,7 @@ begin
 	);
 
 	gate3_exe_mem_inst: entity gate3_exe_mem port map(
-		clk => clk, rst => flash_finished,
+		clk => clk, rst => rst,
 		stall => gate3_stall,
 		bubble => sram1_corrupt,
 		input_res => exe_res,
@@ -259,7 +261,7 @@ begin
 	);
 
 	gate4_mem_wb_inst: entity gate4_mem_wb port map(
-		clk => clk, rst => flash_finished,
+		clk => clk, rst => rst,
 		stall => gate4_stall,
 		bubble => sram2_serial_busy,
 		input_reg_wr_flag => mem_reg_wr_flag,
