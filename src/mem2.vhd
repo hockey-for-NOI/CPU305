@@ -31,7 +31,7 @@ begin
 		wrn <= '1';
 		serial_busy <= '0';
 		sram2_en <= '0';
-		sram2_oe <= clk_wr or wr_flag;
+		sram2_oe <= wr_flag;
 		sram2_we <= clk_wr or (not wr_flag);
 		if (wr_flag = '1') then
 			sram2_addr <= "00" & wr_addr;
@@ -40,6 +40,7 @@ begin
 			if (wr_addr = x"BF00") then
 				if (tsre = '1' and tbre = '1') then
 					wrn <= clk_wr;
+					sram2_we <= '1';
 				else
 					serial_busy <= '1';
 				end if;
@@ -48,13 +49,14 @@ begin
 			sram2_addr <= "00" & rd_addr;
 			sram2_data <= (others => 'Z');
 			rd_val <= sram2_data;
-			if (rd_addr = x"BF00") then
-				if (data_ready = '1') then
-					sram2_oe <= '1';
-					rdn <= clk_wr;
-				else
-					serial_busy <= '1';
-				end if;
+			if (rd_addr = x"BF01") then
+				rd_val <= (1 => data_ready, 0 => (tbre and tsre), others => '0');
+			elsif (rd_addr = x"BF00") then
+				sram2_en <= '1';
+				sram2_oe <= '1';
+				sram2_we <= '1';
+				rdn <= '0';
+				wrn <= '1';
 			end if;
 		else
 			sram2_addr <= (others => 'X');

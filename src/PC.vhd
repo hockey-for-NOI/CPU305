@@ -22,7 +22,7 @@ begin
 
 	process(clk, rst)
 	begin
-		if (rst = '1') then
+		if (rst = '0') then
 			pc <= (others => '0');
 		elsif rising_edge(clk) then
 			if (stall = '0') then

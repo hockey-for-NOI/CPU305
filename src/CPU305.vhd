@@ -5,7 +5,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity CPU is
 	port(
-		start, clk_press, clk_50m, rst: in std_logic;
+		clk_press, clk_50m, rst_press: in std_logic;
 		sram1_en, sram1_oe, sram1_we: out std_logic;
 		sram2_en, sram2_oe, sram2_we: out std_logic;
 		sram1_data, sram2_data: inout std_logic_vector(15 downto 0);
@@ -13,13 +13,22 @@ entity CPU is
 		data_ready, tsre, tbre: in std_logic;
 		rdn, wrn: out std_logic;
 		debug0: out std_logic_vector(15 downto 0);
-		debug1, debug2: out std_logic_vector(6 downto 0)
+		debug1, debug2: out std_logic_vector(6 downto 0);
+		flash_addr : out std_logic_vector(22 downto 0);
+		flash_data : inout std_logic_vector(15 downto 0);
+		flash_byte : out std_logic;
+		flash_vpen : out std_logic;
+		flash_rp : out std_logic;
+		flash_ce : out std_logic;
+		flash_oe : out std_logic;
+		flash_we : out std_logic;
+		rst_flash : in std_logic
 	);
 end CPU;
 
 architecture bhv of CPU is
 
-signal	clk, clk_wr: std_logic;
+signal	clk, clk_wr, rst: std_logic;
 signal	reg_rd1, reg_rd2, reg_wr: std_logic_vector(3 downto 0);
 signal	reg_rval1, reg_rval2, reg_wval: std_logic_vector(15 downto 0);
 signal	reg_we: std_logic;
@@ -27,7 +36,7 @@ signal	mem1_rd_flag, mem1_wr_flag, mem2_rd_flag, mem2_wr_flag: std_logic;
 signal	mem1_rd_addr, mem1_wr_addr, mem2_rd_addr, mem2_wr_addr: std_logic_vector(15 downto 0);
 signal	mem1_rd_val, mem1_wr_val, mem2_rd_val, mem2_wr_val: std_logic_vector(15 downto 0);
 signal	pc_jump_flag, pc_stall: std_logic;
-signal	pc_jump_addr, pc_addr: std_logic_vector(15 downto 0);
+signal	pc_jump_addr: std_logic_vector(15 downto 0);
 signal	if_instruction: std_logic_vector(15 downto 0);
 signal	if_pc_addr, id_pc_addr: std_logic_vector(15 downto 0);
 signal	gate1_stall, gate2_stall, gate3_stall, gate4_stall: std_logic;
@@ -53,15 +62,58 @@ signal	sram1_corrupt, id_bubble, sram2_serial_busy: std_logic;
 signal	forwarder_rd1, forwarder_rd2: std_logic_vector(3 downto 0);
 signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
+signal  mem1_sram1_en, mem1_sram1_oe, mem1_sram1_we : std_logic;
+signal  flash_sram1_en, flash_sram1_oe, flash_sram1_we : std_logic;
+signal  mem1_sram1_data_in, mem1_sram1_data_out, flash_sram1_data : std_logic_vector(15 downto 0);
+signal  mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
+signal  flash_finished : std_logic;
 
 begin
-
+	--debug0 <= forwarder_rval2;
+	debug0 <= if_pc_addr;
+	debug1 <= exe_val2(6 downto 0);
+	--debug1 <= (others => '0');
+	debug2(4 downto 0) <= (others => '0');
+	debug2(5) <= rst;
+	debug2(6) <= flash_finished;
+	rst <= rst_press and flash_finished;
+	with flash_finished select
+		sram1_addr <= mem1_sram1_addr when '1', flash_sram1_addr when others;
+--	with flash_finished select --??
+--		sram1_data <= mem1_sram1_data_in when '1', flash_sram1_data when others;
+--	mem1_sram1_data_out <= sram1_data;
+	process(mem1_sram1_data_out, mem1_wr_flag, flash_sram1_data)
+	begin
+		if (flash_finished = '0') then
+			sram1_data <= flash_sram1_data;
+		else
+			if (mem1_wr_flag = '0') then
+				sram1_data <= (others=>'Z');
+				mem1_sram1_data_in <= sram1_data;
+			else
+				sram1_data <= mem1_sram1_data_out;
+			end if;
+		end if;
+	end process;
+	with flash_finished select
+		sram1_en <= mem1_sram1_en when '1', flash_sram1_en when others;
+	with flash_finished select
+		sram1_oe <= mem1_sram1_oe when '1', flash_sram1_oe when others;
+	with flash_finished select
+		sram1_we <= mem1_sram1_we when '1', flash_sram1_we when others;
+	--rst <= rst_press;
+	--sram1_addr <= mem1_sram1_addr;
+	--sram1_data <= mem1_sram1_data;
+	--sram1_en <= mem1_sram1_en;
+	--sram1_oe <= mem1_sram1_oe;
+	--sram1_we <= mem1_sram1_we;
 	clkman_inst: entity clkman port map(
 		clk_in => clk_50m,
 		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 	);
 
 	reg_inst: entity reg port map(
+		clk => clk,
 		rd1 => reg_rd1, rval1 => reg_rval1,
 		rd2 => reg_rd2, rval2 => reg_rval2,
 		wr => reg_wr, we => reg_we, wval => reg_wval
@@ -72,9 +124,22 @@ begin
 		if_addr => if_pc_addr, if_val => if_instruction,
 		rd_flag => mem1_rd_flag, rd_addr => mem1_rd_addr, rd_val => mem1_rd_val,
 		wr_flag => mem1_wr_flag, wr_addr => mem1_wr_addr, wr_val => mem1_wr_val,
-		sram1_en => sram1_en, sram1_oe => sram1_oe, sram1_we => sram1_we,
-		sram1_data => sram1_data, sram1_addr => sram1_addr,
+		sram1_en => mem1_sram1_en, sram1_oe => mem1_sram1_oe, sram1_we => mem1_sram1_we,
+		--sram1_data => mem1_sram1_data, 
+		sram1_data_in => mem1_sram1_data_in,
+		sram1_data_out => mem1_sram1_data_out,
+		sram1_addr => mem1_sram1_addr,
 		corrupt => sram1_corrupt
+	);
+	flash_inst: entity flash port map(
+		clk => clk, rst => rst_flash, --clk??
+		sram1_addr => flash_sram1_addr,	sram1_data => flash_sram1_data,				
+		sram1_en => flash_sram1_en, sram1_oe => flash_sram1_oe, sram1_we =>flash_sram1_we,
+		flash_finished =>flash_finished,
+		flash_addr => flash_addr, flash_data => flash_data,		
+		flash_byte => flash_byte, flash_vpen => flash_vpen,
+		flash_rp => flash_rp, flash_ce => flash_ce,
+		flash_oe => flash_oe, flash_we => flash_we
 	);
 
 	serial_delayer_inst: entity serial_delayer port map(
@@ -120,7 +185,7 @@ begin
 		exe_mem_rd_flag => exe_mem_rd_flag,
 		exe_forward_addr => exe_res_reg_addr,
 		exe_forward_val => exe_res,
-		mem_forward_flag => mem_mem_rd_flag,
+		mem_forward_flag => mem_reg_wr_flag,
 		mem_forward_addr => mem_res_reg_addr,
 		mem_forward_val => mem_output_val,
 		forwarder_bubble => forwarder_bubble
@@ -233,7 +298,6 @@ begin
 	);
 
 	pipe5_wb_inst: entity pipe5_wb port map(
-		clk_wr => clk_wr,
 		input_reg_wr_flag => wb_reg_wr_flag,
 		input_val => wb_val,
 		input_res_reg_addr => wb_res_reg_addr,

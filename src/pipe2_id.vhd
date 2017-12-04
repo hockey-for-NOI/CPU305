@@ -21,12 +21,11 @@ entity pipe2_id is
 end pipe2_id;
 
 architecture bhv of pipe2_id is
-
+	signal rx, ry, rz: std_logic_vector(3 downto 0);
+	signal jump_dist: std_logic_vector(15 downto 0);
 begin
-
+	
 	process (input_instruction, input_reg_rval1, input_reg_rval2, input_pc_addr)
-	variable rx, ry, rz: std_logic_vector(3 downto 0);
-	variable jump_dist: std_logic_vector(15 downto 0);
 	begin
 		--Default Values
 		output_reg_rd1 <= (others => '1');
@@ -42,9 +41,9 @@ begin
 		output_jump_flag <= '0';
 		output_jump_addr <= (others => '0');
 
-		rx := '0' & input_instruction(10 downto 8);
-		ry := '0' & input_instruction(7 downto 5);
-		rz := '0' & input_instruction(4 downto 2);
+		rx <= '0' & input_instruction(10 downto 8);
+		ry <= '0' & input_instruction(7 downto 5);
+		rz <= '0' & input_instruction(4 downto 2);
 
 		case input_instruction(15 downto 11) is
 			when "00001"=> -- NOP
@@ -68,7 +67,7 @@ begin
 			when "01100"=>
 				case input_instruction(10 downto 8) is
 					when "011"=> -- ADDSP
-						rx := "1010"; --A: SP
+						rx <= "1010"; --A: SP
 						output_reg_rd1 <= rx; --SP
 						output_val1 <= input_reg_rval1;
 						output_val2 <= (others => input_instruction(7));
@@ -79,22 +78,22 @@ begin
 					when "000"=> -- BTEQZ
 						output_reg_rd1 <= "1000"; --8: T
 						if input_reg_rval1 = "0000000000000000" then
-							jump_dist := (others => input_instruction(7));
-							jump_dist(7 downto 0) := input_instruction(7 downto 0);
-							output_jump_addr <= jump_dist + input_pc_addr;
+							jump_dist <= (others => input_instruction(7));
+							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+							output_jump_addr <= jump_dist + input_pc_addr + 1;
 							output_jump_flag <= '1';
 						end if;
 					when "001"=> -- BTNEZ
 						output_reg_rd1 <= "1000"; --8: T
 						if input_reg_rval1 /= "0000000000000000" then
-							jump_dist := (others => input_instruction(7));
-							jump_dist(7 downto 0) := input_instruction(7 downto 0);
-							output_jump_addr <= jump_dist + input_pc_addr;
+							jump_dist <= (others => input_instruction(7));
+							jump_dist(7 downto 0) <= input_instruction(7 downto 0);
+							output_jump_addr <= jump_dist + input_pc_addr + 1;
 							output_jump_flag <= '1';
 						end if;
 					when "100"=> -- MTSP
-						rx := '0' & input_instruction(7 downto 5);
-						rz := "1010"; --A: SP
+						rx <= '0' & input_instruction(7 downto 5);
+						rz <= "1010"; --A: SP
 						output_reg_rd1 <= rx;
 						output_val1 <= input_reg_rval1;
 						output_res_reg_addr <= rz; --SP
@@ -125,30 +124,31 @@ begin
 						null;
 				end case;
 			when "00010"=> -- B
-				jump_dist := (others => input_instruction(10));
-				jump_dist(10 downto 0) := input_instruction(10 downto 0);
+				jump_dist <= (others => input_instruction(10));
+				jump_dist(10 downto 0) <= input_instruction(10 downto 0);
+				--jump_dist <= x"FFFA";
 				output_jump_addr <= jump_dist + input_pc_addr + 1;
 				output_jump_flag <= '1';
 			when "00100"=> -- BEQZ
 				output_reg_rd1 <= rx;
 				if input_reg_rval1 = "0000000000000000" then
-					jump_dist := (others => input_instruction(7));
-					jump_dist(7 downto 0) := input_instruction(7 downto 0);
+					jump_dist <= (others => input_instruction(7));
+					jump_dist(7 downto 0) <= input_instruction(7 downto 0);
 					output_jump_addr <= jump_dist + input_pc_addr + 1;
 					output_jump_flag <= '1';
 				end if;
 			when "00101"=> -- BNEZ
 				output_reg_rd1 <= rx;
 				if input_reg_rval1 /= "0000000000000000" then
-					jump_dist := (others => input_instruction(7));
-					jump_dist(7 downto 0) := input_instruction(7 downto 0);
+					jump_dist <= (others => input_instruction(7));
+					jump_dist(7 downto 0) <= input_instruction(7 downto 0);
 					output_jump_addr <= jump_dist + input_pc_addr + 1;
 					output_jump_flag <= '1';
 				end if;
 			when "11101"=>
 				case input_instruction(4 downto 0) is
 					when "01010"=> -- CMP
-						rz := "1000"; --8: T
+						rz <= "1000"; --8: T
 						output_reg_rd1 <= rx;
 						output_reg_rd2 <= ry;
 						output_val1 <= input_reg_rval1;
@@ -191,7 +191,7 @@ begin
 								output_jump_addr <= input_reg_rval1;
 								output_jump_flag <= '1';
 							when "010"=> -- MFPC
-								output_val1 <= input_pc_addr;
+								output_val1 <= input_pc_addr + 1;
 								output_res_reg_addr <= rx;
 								output_alu_op <= "1000"; --8: val1
 								output_reg_wr_flag <= '1';
@@ -227,14 +227,14 @@ begin
 			when "11110"=> 
 				case input_instruction(7 downto 0) is
 					when "00000000"=> -- MFIH
-						rz := "1001"; --9: IH
+						rz <= "1001"; --9: IH
 						output_reg_rd1 <= rz;
 						output_val1 <= input_reg_rval1;
 						output_res_reg_addr <= rx;
 						output_alu_op <= "1000"; --8: val1
 						output_reg_wr_flag <= '1';
 					when "00000001"=> -- MTIH
-						rz := "1001"; --9: IH
+						rz <= "1001"; --9: IH
 						output_reg_rd1 <= rx;
 						output_val1 <= input_reg_rval1;
 						output_res_reg_addr <= rz; --IH
