@@ -68,6 +68,8 @@ signal  mem1_sram1_data_in, mem1_sram1_data_out, flash_sram1_data : std_logic_ve
 signal  mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
 signal  flash_finished : std_logic;
 
+--signal clk_origin, rst_neg, clk_fixed, rst_shift, rst_shift_neg : std_logic;
+
 begin
 	--debug0 <= forwarder_rval2;
 	debug0 <= if_pc_addr;
@@ -107,10 +109,40 @@ begin
 	--sram1_en <= mem1_sram1_en;
 	--sram1_oe <= mem1_sram1_oe;
 	--sram1_we <= mem1_sram1_we;
+
+--	clk <= clk_50m;
+--	clk_wr <= clk_50m;
+
+--	rst_neg <= not rst;
+--	rst_shift <= rst_neg;
+	
 	clkman_inst: entity clkman port map(
 		clk_in => clk_50m,
-		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
+		clk => clk,
+		clk_wr => clk_wr
 	);
+	
+--	clk_adv_inst: entity clk_adv port map(
+--		CLKIN_IN => clk_50m,
+--		RST_IN => rst_neg,
+--		CLK0_OUT => clk_origin,
+--		CLKFX_OUT => clk,
+--		LOCKED_OUT => rst_shift_neg
+--	);
+	
+--	clk <= clk_fixed;
+--	clk_wr <= clk_fixed xor clk_origin;
+
+--	rst_shift <= not rst_shift_neg;
+
+--	clk_shift_inst: entity clk_shift port map(
+--		CLKIN_IN => clk_fixed,
+--		RST_IN => rst_neg,
+--		CLKIN_IBUFG_OUT => open,
+--		CLK0_OUT => clk,
+--		CLK270_OUT => clk_wr,
+--		LOCKED_OUT => open
+--	);
 
 	reg_inst: entity reg port map(
 		clk => clk,
