@@ -6,6 +6,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity CPU is
 	port(
 		clk_press, clk_50m, rst_press: in std_logic;
+		ps2_clk, ps2_data, ps2_en_press : in std_logic;
 		sram1_en, sram1_oe, sram1_we: out std_logic;
 		sram2_en, sram2_oe, sram2_we: out std_logic;
 		sram1_data, sram2_data: inout std_logic_vector(15 downto 0);
@@ -62,20 +63,24 @@ signal	sram1_corrupt, id_bubble, sram2_serial_busy: std_logic;
 signal	forwarder_rd1, forwarder_rd2: std_logic_vector(3 downto 0);
 signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
-signal  mem1_sram1_en, mem1_sram1_oe, mem1_sram1_we : std_logic;
-signal  flash_sram1_en, flash_sram1_oe, flash_sram1_we : std_logic;
-signal  mem1_sram1_data_in, mem1_sram1_data_out, flash_sram1_data : std_logic_vector(15 downto 0);
-signal  mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
-signal  flash_finished : std_logic;
+signal  	mem1_sram1_en, mem1_sram1_oe, mem1_sram1_we : std_logic;
+signal  	flash_sram1_en, flash_sram1_oe, flash_sram1_we : std_logic;
+signal  	mem1_sram1_data_in, mem1_sram1_data_out, flash_sram1_data : std_logic_vector(15 downto 0);
+signal  	mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
+signal  	flash_finished : std_logic;
+signal  	ascii_new, ps2_data_ready : std_logic;
+signal   ascii_code, read_ascii_code : std_logic_vector(7 downto 0);
+
 
 --signal clk_origin, rst_neg, clk_fixed, rst_shift, rst_shift_neg : std_logic;
 
 begin
-	--debug0 <= forwarder_rval2;
-	debug0 <= if_pc_addr;
-	debug1 <= exe_val2(6 downto 0);
-	--debug1 <= (others => '0');
-	debug2(4 downto 0) <= (others => '0');
+	debug0(7 downto 0) <= ascii_code;
+	debug0(15 downto 8) <= read_ascii_code;
+	debug1(0) <= ascii_new;
+	debug2(0) <= ps2_data_ready;
+	debug1(6 downto 1) <= (others => '0');
+	debug2(4 downto 1) <= (others => '0');
 	debug2(5) <= rst;
 	debug2(6) <= flash_finished;
 	rst <= rst_press and flash_finished;
@@ -143,7 +148,14 @@ begin
 --		CLK270_OUT => clk_wr,
 --		LOCKED_OUT => open
 --	);
-
+	ps2_inst: entity ps2 port map(
+		clk => clk_50m, rst => rst,
+		read_en => ps2_en_press,
+		ps2_clk => ps2_clk, ps2_data => ps2_data,
+		ascii_new => ascii_new, ascii_code => ascii_code,
+		can_read => ps2_data_ready, read_ascii_code => read_ascii_code
+	);
+	
 	reg_inst: entity reg port map(
 		clk => clk,
 		rd1 => reg_rd1, rval1 => reg_rval1,

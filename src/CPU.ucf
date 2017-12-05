@@ -157,3 +157,7 @@ NET "flash_data[2]" LOC = J2;
 NET "flash_data[1]" LOC = J4;
 NET "flash_data[0]" LOC = J5;
 NET "rst_flash" LOC = T7;
+NET "ps2_clk" LOC = U6;
+NET "ps2_data" LOC = V6;
+NET "ps2_en_press" LOC = J6;
+NET "ps2_en_press" CLOCK_DEDICATED_ROUTE = FALSE;
