@@ -20,7 +20,7 @@ entity mem1 is
 		sram1_data_out : out std_logic_vector(15 downto 0);
 		sram1_addr: out std_logic_vector(17 downto 0);
 		corrupt: out std_logic;
-		danger_addr1, danger_addr2: in std_logic_vector(15 downto 0);
+		danger_addr1, danger_addr2: in std_logic_vector(15 downto 0)
 	);
 end mem1;
 
