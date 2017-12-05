@@ -2,6 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use WORK.cache_def.ALL;
 
 entity CPU is
 	port(
@@ -48,7 +49,7 @@ signal	id_mem_rd_flag, id_mem_wr_flag, id_reg_wr_flag: std_logic;
 signal	exe_val1, exe_val2, exe_val3: std_logic_vector(15 downto 0);
 signal	exe_res_reg_addr: std_logic_vector(3 downto 0);
 signal	exe_alu_op: std_logic_vector(3 downto 0);
-signal	exe_mem_rd_flag, exe_mem_wr_flag, exe_reg_wr_flag: std_logic;
+signal	exe_mem_rd_flag_before_cache, exe_mem_rd_flag_after_cache, exe_mem_wr_flag, exe_reg_wr_flag: std_logic;
 signal	exe_res: std_logic_vector(15 downto 0);
 signal	mem_addr: std_logic_vector(15 downto 0);
 signal	mem_res_reg_addr: std_logic_vector(3 downto 0);
@@ -68,6 +69,8 @@ signal  mem1_sram1_data_in, mem1_sram1_data_out, flash_sram1_data : std_logic_ve
 signal  mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
 signal  flash_finished : std_logic;
 signal	id_danger_addr, mem1_danger_addr1, mem1_danger_addr2: std_logic_vector(15 downto 0);
+
+signal	cache: cache_array;
 
 begin
 	--debug0 <= forwarder_rval2;
@@ -156,14 +159,15 @@ begin
 	);
 
 	mem2_inst: entity mem2 port map(
-		clk_wr => clk_wr,
+		clk, clk_wr => clk_wr, rst => rst,
 		rd_flag => mem2_rd_flag, rd_addr => mem2_rd_addr, rd_val => mem2_rd_val,
 		wr_flag => mem2_wr_flag, wr_addr => mem2_wr_addr, wr_val => mem2_wr_val,
 		serial_busy => sram2_serial_busy,
 		sram2_en => sram2_en, sram2_oe => sram2_oe, sram2_we => sram2_we,
 		sram2_data => sram2_data, sram2_addr => sram2_addr,
 		data_ready => delayed_data_ready, tsre => delayed_tsre, tbre => delayed_tbre,
-		rdn => rdn, wrn => wrn
+		rdn => rdn, wrn => wrn,
+		cache => cache
 	);
 
 	stallman_inst: entity stallman port map(
@@ -186,7 +190,7 @@ begin
 		reg_rd1 => reg_rd1, reg_rval1 => reg_rval1,
 		reg_rd2 => reg_rd2, reg_rval2 => reg_rval2,
 		exe_reg_wr_flag => exe_reg_wr_flag,
-		exe_mem_rd_flag => exe_mem_rd_flag,
+		exe_mem_rd_flag => exe_mem_rd_flag_after_cache,
 		exe_forward_addr => exe_res_reg_addr,
 		exe_forward_val => exe_res,
 		mem_forward_flag => mem_reg_wr_flag,
@@ -255,7 +259,7 @@ begin
 		output_val3 => exe_val3,
 		output_res_reg_addr => exe_res_reg_addr,
 		output_alu_op => exe_alu_op,
-		output_mem_rd_flag => exe_mem_rd_flag,
+		output_mem_rd_flag => exe_mem_rd_flag_before_cache,
 		output_mem_wr_flag => exe_mem_wr_flag,
 		output_reg_wr_flag => exe_reg_wr_flag
 	);
@@ -264,7 +268,10 @@ begin
 		input_val1 => exe_val1,
 		input_val2 => exe_val2,
 		input_alu_op => exe_alu_op,
-		output_res => exe_res
+		input_mem_rd_flag => exe_mem_rd_flag_before_cache,
+		input_cache => cache,
+		output_res => exe_res,
+		output_mem_rd_flag => exe_mem_rd_flag_after_cache
 	);
 
 	gate3_exe_mem_inst: entity gate3_exe_mem port map(
@@ -274,7 +281,7 @@ begin
 		input_res => exe_res,
 		input_val => exe_val3,
 		input_res_reg_addr => exe_res_reg_addr,
-		input_mem_rd_flag => exe_mem_rd_flag,
+		input_mem_rd_flag => exe_mem_rd_flag_after_cache,
 		input_mem_wr_flag => exe_mem_wr_flag,
 		input_reg_wr_flag => exe_reg_wr_flag,
 		output_res => mem_addr,
