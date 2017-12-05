@@ -14,21 +14,19 @@ end dangerman;
 
 architecture bhv of dangerman is
 
-signal	danger_addr1, danger_addr2: std_logic_vector(15 downto 0);
+signal	pad_danger_addr: std_logic_vector(15 downto 0);
 
 begin
 
-	output_danger_addr1 <= danger_addr1;
-	output_danger_addr2 <= danger_addr2;
+	output_danger_addr1 <= input_danger_addr;
+	output_danger_addr2 <= pad_danger_addr;
 
 	process(clk, rst)
 	begin
 		if (rst = '0') then
-			danger_addr1 <= (others => '1');
-			danger_addr2 <= (others => '1');
+			pad_danger_addr <= (others => '1');
 		elsif rising_edge(clk) then
-			danger_addr2 <= danger_addr1;
-			danger_addr1 <= input_danger_addr;
+			pad_danger_addr <= input_danger_addr;
 		end if;
 	end process;
 
