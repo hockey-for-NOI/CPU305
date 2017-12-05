@@ -16,13 +16,14 @@ entity pipe2_id is
 		output_mem_wr_flag: out std_logic;
 		output_reg_wr_flag: out std_logic;
 		output_jump_flag: out std_logic;
-		output_jump_addr: out std_logic_vector(15 downto 0)
+		output_jump_addr, output_danger_addr: out std_logic_vector(15 downto 0)
 	);
 end pipe2_id;
 
 architecture bhv of pipe2_id is
 	signal rx, ry, rz: std_logic_vector(3 downto 0);
 	signal jump_dist: std_logic_vector(15 downto 0);
+	signal mem_wr_pos, mem_wr_bias: std_logic_vector(15 downto 0);
 begin
 	
 	process (input_instruction, input_reg_rval1, input_reg_rval2, input_pc_addr)
@@ -40,10 +41,15 @@ begin
 		output_reg_wr_flag <= '0';
 		output_jump_flag <= '0';
 		output_jump_addr <= (others => '0');
+		output_danger_addr <= (others => '1');
 
 		rx <= '0' & input_instruction(10 downto 8);
 		ry <= '0' & input_instruction(7 downto 5);
 		rz <= '0' & input_instruction(4 downto 2);
+
+		jump_dist <= (others => 'X');
+		mem_wr_pos <= (others => 'X');
+		mem_wr_bias <= (others => 'X');
 
 		case input_instruction(15 downto 11) is
 			when "00001"=> -- NOP
@@ -280,12 +286,14 @@ begin
 			when "11011"=> -- SW
 				output_reg_rd1 <= rx;
 				output_reg_rd2 <= ry;
-				output_val1 <= input_reg_rval1;
-				output_val2 <= (others => input_instruction(4));
-				output_val2(4 downto 0) <= input_instruction(4 downto 0);
+				mem_wr_bias <= (others => input_instruction(4));
+				mem_wr_bias(4 downto 0) <= input_instruction(4 downto 0);
+				mem_wr_pos <= input_reg_rval1 + mem_wr_bias;
+				output_val1 <= mem_wr_pos;
 				output_val3 <= input_reg_rval2;
-				output_alu_op <= "0000";
+				output_alu_op <= "1000";
 				output_mem_wr_flag <= '1';
+				output_danger_addr <= mem_wr_pos;
 			when "11010"=> -- SW_SP
 				output_reg_rd1 <= "1010"; --A: SP
 				output_reg_rd2 <= rx;

@@ -67,6 +67,7 @@ signal  flash_sram1_en, flash_sram1_oe, flash_sram1_we : std_logic;
 signal  mem1_sram1_data_in, mem1_sram1_data_out, flash_sram1_data : std_logic_vector(15 downto 0);
 signal  mem1_sram1_addr, flash_sram1_addr : std_logic_vector(17 downto 0);
 signal  flash_finished : std_logic;
+signal	id_danger_addr, mem1_danger_addr1, mem1_danger_addr2: std_logic_vector(15 downto 0);
 
 begin
 	--debug0 <= forwarder_rval2;
@@ -129,7 +130,9 @@ begin
 		sram1_data_in => mem1_sram1_data_in,
 		sram1_data_out => mem1_sram1_data_out,
 		sram1_addr => mem1_sram1_addr,
-		corrupt => sram1_corrupt
+		corrupt => sram1_corrupt,
+		danger_addr1 => mem1_danger_addr1,
+		danger_addr2 => mem1_danger_addr2
 	);
 	flash_inst: entity flash port map(
 		clk => clk, rst => rst_flash, --clk??
@@ -191,6 +194,13 @@ begin
 		forwarder_bubble => forwarder_bubble
 	);
 
+	dangerman_inst: entity dangerman port map(
+		clk => clk, rst => rst,
+		input_danger_addr => id_danger_addr,
+		output_danger_addr1 => mem1_danger_addr1,
+		output_danger_addr2 => mem1_danger_addr2
+	);
+
 	pc_inst: entity PC port map(
 		clk => clk, rst => rst,
 		jump_flag => pc_jump_flag, jump_addr => pc_jump_addr,
@@ -223,7 +233,8 @@ begin
 		output_mem_wr_flag => id_mem_wr_flag,
 		output_reg_wr_flag => id_reg_wr_flag,
 		output_jump_flag => pc_jump_flag,
-		output_jump_addr => pc_jump_addr
+		output_jump_addr => pc_jump_addr,
+		output_danger_addr => id_danger_addr
 	);
 
 	gate2_id_exe_inst: entity gate2_id_exe port map(
