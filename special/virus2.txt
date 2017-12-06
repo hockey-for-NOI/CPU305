@@ -1,0 +1,10 @@
+测试点：SW自己
+初次运行AC 再次运行AB
+
+MFPC R1
+LI R3 AC
+LW R1 R2 0
+ADDIU R2 FF
+SW R1 R2 2
+JR R7
+NOP

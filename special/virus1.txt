@@ -1,0 +1,11 @@
+测试点：SW后立刻执行
+第一次R3=AC正确 R3=AB错误
+以后运行结果均为AC
+
+MFPC R1
+LW R1 R2 3
+ADDIU R2 1
+SW R1 R2 3
+LI R3 AB
+JR R7
+NOP
