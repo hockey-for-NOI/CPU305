@@ -10,6 +10,8 @@ entity pipe3_exe is
 		input_alu_op: in std_logic_vector(3 downto 0);
 		input_mem_rd_flag: in std_logic;
 		input_cache: in cache_array;
+		input_mem_prev_wr_flag: in std_logic;
+		input_mem_prev_wr_addr, input_mem_prev_wr_val: in std_logic_vector(15 downto 0);
 		output_res: out std_logic_vector(15 downto 0);
 		output_mem_rd_flag: out std_logic
 	);		
@@ -72,7 +74,11 @@ begin
 
 		if ((input_mem_rd_flag = '1') and (input_val1(15 downto 14) = "11") and 
 				((input_cache(CONV_INTEGER(input_val1(3 downto 0)))(26 downto 16)) = ("1" & input_val1(13 downto 4)))) then
-			output_res <= input_cache(CONV_INTEGER(input_val1(3 downto 0)))(15 downto 0);
+			if ((input_mem_prev_wr_flag = '1') and (input_val1 = input_mem_prev_wr_addr)) then
+				output_res <= input_mem_prev_wr_val;
+			else
+				output_res <= input_cache(CONV_INTEGER(input_val1(3 downto 0)))(15 downto 0);
+			end if;
 			output_mem_rd_flag <= '0';
 		else
 			output_res <= tmp_res;

@@ -284,6 +284,9 @@ begin
 		input_alu_op => exe_alu_op,
 		input_mem_rd_flag => exe_mem_rd_flag_before_cache,
 		input_cache => cache,
+		input_mem_prev_wr_flag => mem_mem_wr_flag,
+		input_mem_prev_wr_addr => mem_addr,
+		input_mem_prev_wr_val => mem_input_val,
 		output_res => exe_res,
 		output_mem_rd_flag => exe_mem_rd_flag_after_cache
 	);

@@ -160,3 +160,4 @@ NET "rst_flash" LOC = T7;
 #Created by Constraints Editor (xc3s1200e-fg320-4) - 2017/12/07
 NET "clk_src" TNM_NET = clk_src;
 TIMESPEC TS_clk_src = PERIOD "clk_src" 20 ns HIGH 50%;
+TIMEGRP "sram2_data" OFFSET = IN 8 ns AFTER "clk_src";
