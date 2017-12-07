@@ -9,7 +9,7 @@ entity vga is
     v_sync    :  OUT  STD_LOGIC;  --vertical sync pulse
    r, g, b : out STD_LOGIC_VECTOR(2 downto 0);
 	ps2_clk    : IN  STD_LOGIC;                     --clock signal from PS2 keyboard
-    ps2_data   : IN  STD_LOGIC;                     --data signal from PS2 keyboard
+    ps2_data   : IN  STD_LOGIC                     --data signal from PS2 keyboard
   ); 
 end vga;
 
@@ -92,7 +92,7 @@ architecture bhv of vga is
 		read_ascii_code: out std_logic_vector(7 downto 0) -- last ascii code
 		); --ASCII value, from high bit to low bit 
 		
-END ps2;
+end component;
   
 begin
 
@@ -173,7 +173,7 @@ begin
 		elsif rising_edge(pix_clk) then 
 			if (ps2_data_ready = '1') then
 				state <= "01";
-				ps2_read_en <= 1;
+				ps2_read_en <= '1';
 				write_ena <= '0';
 				clkw <= '0';
 			else

@@ -76,7 +76,7 @@ BEGIN
 	 	clkw => clkw,
 	    char_read_addr => read_addr,
 	      char_write_addr => writeAddr,
-	      char_we => char_we
+	      char_we => char_we,
 			char_write_value => char_value,
 	      char_read_value => ascii_out
 	 
