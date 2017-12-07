@@ -23,8 +23,8 @@ end pipe2_id;
 architecture bhv of pipe2_id is
 	signal rx, ry, rz: std_logic_vector(3 downto 0);
 	signal jump_dist: std_logic_vector(15 downto 0);
-	signal mem_wr_pos: std_logic_vector(15 downto 0);
-	signal mem_wr_bias: std_logic_vector(7 downto 0);
+	signal mem_pos: std_logic_vector(15 downto 0);
+	signal mem_bias: std_logic_vector(15 downto 0);
 begin
 	
 	process (input_instruction, input_reg_rval1, input_reg_rval2, input_pc_addr)
@@ -49,7 +49,8 @@ begin
 		rz <= '0' & input_instruction(4 downto 2);
 
 		jump_dist <= (others => 'X');
-		mem_wr_bias <= (others => 'X');
+		mem_pos <= (others => 'X');
+		mem_bias <= (others => 'X');
 
 		case input_instruction(15 downto 11) is
 			when "00001"=> -- NOP
@@ -214,19 +215,21 @@ begin
 				output_reg_wr_flag <= '1';
 			when "10011"=> -- LW
 				output_reg_rd1 <= rx;
-				output_val1 <= input_reg_rval1;
-				output_val2 <= (others => input_instruction(4));
-				output_val2(4 downto 0) <= input_instruction(4 downto 0);
-				output_alu_op <= "0000";
+				mem_bias <= (others => input_instruction(4));
+				mem_bias(4 downto 0) <= input_instruction(4 downto 0);
+				mem_pos <= input_reg_rval1 + mem_bias;
+				output_val1 <= mem_pos;
+				output_alu_op <= "1000";
 				output_res_reg_addr <= ry;
 				output_reg_wr_flag <= '1';
 				output_mem_rd_flag <= '1';				
 			when "10010"=> -- LW_SP
 				output_reg_rd1 <= "1010"; --A: SP
-				output_val1 <= input_reg_rval1;
-				output_val2 <= (others => input_instruction(7));
-				output_val2(7 downto 0) <= input_instruction(7 downto 0);
-				output_alu_op <= "0000";
+				mem_bias <= (others => input_instruction(7));
+				mem_bias(7 downto 0) <= input_instruction(7 downto 0);
+				mem_pos <= input_reg_rval1 + mem_bias;
+				output_val1 <= mem_pos;
+				output_alu_op <= "1000";
 				output_res_reg_addr <= rx;
 				output_reg_wr_flag <= '1';
 				output_mem_rd_flag <= '1';
@@ -286,31 +289,28 @@ begin
 			when "11011"=> -- SW
 				output_reg_rd1 <= rx;
 				output_reg_rd2 <= ry;
-				mem_wr_bias <= (others => input_instruction(4));
-				mem_wr_bias(4 downto 0) <= input_instruction(4 downto 0);
-				output_val1 <= mem_wr_pos;
+				mem_bias <= (others => input_instruction(4));
+				mem_bias(4 downto 0) <= input_instruction(4 downto 0);
+				mem_pos <= input_reg_rval1 + mem_bias;
+				output_val1 <= mem_pos;
 				output_val3 <= input_reg_rval2;
 				output_alu_op <= "1000";
 				output_mem_wr_flag <= '1';
-				output_danger_addr <= mem_wr_pos;
+				output_danger_addr <= mem_pos;
 			when "11010"=> -- SW_SP
 				output_reg_rd1 <= "1010"; --A: SP
 				output_reg_rd2 <= rx;
-				mem_wr_bias <= input_instruction(7 downto 0);
-				output_val1 <= mem_wr_pos;
+				mem_bias <= (others => input_instruction(7));
+				mem_bias(7 downto 0) <= input_instruction(7 downto 0);
+				mem_pos <= input_reg_rval1 + mem_bias;
+				output_val1 <= mem_pos;
 				output_val3 <= input_reg_rval2;
 				output_alu_op <= "1000";
 				output_mem_wr_flag <= '1';
-				output_danger_addr <= mem_wr_pos;
+				output_danger_addr <= mem_pos;
 			when others=>
 				null;
 		end case;
 	end process;
-
-	adder_inst: entity adder port map(
-		input_16 => input_reg_rval1,
-		input_8 => mem_wr_bias,
-		output_16 => mem_wr_pos
-	);
 
 end bhv;
