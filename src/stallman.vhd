@@ -7,6 +7,7 @@ entity stallman is
 	port(
 		input_sram2_serial_busy: in std_logic;
 		input_sram1_corrupt: in std_logic;
+		input_sram1_virus: in std_logic;
 		input_forwarder_bubble: in std_logic;
 		output_stalls: out std_logic_vector(4 downto 0)
 	);
@@ -21,6 +22,8 @@ begin
 			output_stalls <= "11110";
 		elsif (input_sram1_corrupt = '1') then
 			output_stalls <= "11100";
+		elsif (input_sram1_virus = '1') then
+			output_stalls <= "10000";
 		elsif (input_forwarder_bubble = '1') then
 			output_stalls <= "11000";
 		else

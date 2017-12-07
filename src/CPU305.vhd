@@ -58,7 +58,7 @@ signal	mem_input_val, mem_output_val: std_logic_vector(15 downto 0);
 signal	wb_reg_wr_flag: std_logic;
 signal	wb_val: std_logic_vector(15 downto 0);
 signal	wb_res_reg_addr: std_logic_vector(3 downto 0);
-signal	sram1_corrupt, id_bubble, sram2_serial_busy: std_logic;
+signal	sram1_corrupt, sram1_virus, id_bubble, sram2_serial_busy: std_logic;
 signal	forwarder_rd1, forwarder_rd2: std_logic_vector(3 downto 0);
 signal	forwarder_rval1, forwarder_rval2: std_logic_vector(15 downto 0);
 signal	forwarder_bubble: std_logic;
@@ -130,7 +130,7 @@ begin
 		sram1_data_in => mem1_sram1_data_in,
 		sram1_data_out => mem1_sram1_data_out,
 		sram1_addr => mem1_sram1_addr,
-		corrupt => sram1_corrupt,
+		corrupt => sram1_corrupt, virus => sram1_virus,
 		danger_addr1 => mem1_danger_addr1,
 		danger_addr2 => mem1_danger_addr2
 	);
@@ -169,6 +169,7 @@ begin
 	stallman_inst: entity stallman port map(
 		input_sram2_serial_busy => sram2_serial_busy,
 		input_sram1_corrupt => sram1_corrupt,
+		input_sram1_virus => sram1_virus,
 		input_forwarder_bubble => forwarder_bubble,
 		output_stalls(4) => pc_stall,
 		output_stalls(3) => gate1_stall,
