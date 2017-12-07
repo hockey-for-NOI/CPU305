@@ -70,9 +70,9 @@ begin
 				tmp_res := "0000000000000000";
 		end case;
 
-		if ((input_mem_rd_flag = '1') and (input_val1(15 downto 14) = "11") and 
-				(input_cache(CONV_INTEGER(input_val1(3 downto 0)))(26 downto 16) = "1" & input_val1(13 downto 4))) then
-			output_res <= input_cache(CONV_INTEGER(input_val1(3 downto 0)))(15 downto 0);
+		if ((input_mem_rd_flag = '1') and (tmp_res(15 downto 14) = "11") and 
+				((input_cache(CONV_INTEGER(tmp_res(3 downto 0)))(26 downto 16)) = ("1" & tmp_res(13 downto 4)))) then
+			output_res <= input_cache(CONV_INTEGER(tmp_res(3 downto 0)))(15 downto 0);
 			output_mem_rd_flag <= '0';
 		else
 			output_res <= tmp_res;

@@ -297,12 +297,14 @@ begin
 			when "11010"=> -- SW_SP
 				output_reg_rd1 <= "1010"; --A: SP
 				output_reg_rd2 <= rx;
-				output_val1 <= input_reg_rval1;
-				output_val2 <= (others => input_instruction(7));
-				output_val2(7 downto 0) <= input_instruction(7 downto 0);
+				mem_wr_bias <= (others => input_instruction(7));
+				mem_wr_bias(7 downto 0) <= input_instruction(7 downto 0);
+				mem_wr_pos <= input_reg_rval1 + mem_wr_bias;
+				output_val1 <= mem_wr_pos;
 				output_val3 <= input_reg_rval2;
-				output_alu_op <= "0000";
+				output_alu_op <= "1000";
 				output_mem_wr_flag <= '1';
+				output_danger_addr <= mem_wr_pos;
 			when others=>
 				null;
 		end case;

@@ -77,7 +77,10 @@ begin
 	debug0 <= if_pc_addr;
 	debug1 <= exe_val2(6 downto 0);
 	--debug1 <= (others => '0');
-	debug2(4 downto 0) <= (others => '0');
+	debug2(1 downto 0) <= (others => '0');
+	debug2(2) <= cache(15)(26);
+	debug2(3) <= exe_mem_rd_flag_before_cache xor exe_mem_rd_flag_after_cache;
+	debug2(4) <= forwarder_bubble;
 	debug2(5) <= rst;
 	debug2(6) <= flash_finished;
 	rst <= rst_press and flash_finished;
@@ -167,7 +170,8 @@ begin
 		sram2_data => sram2_data, sram2_addr => sram2_addr,
 		data_ready => delayed_data_ready, tsre => delayed_tsre, tbre => delayed_tbre,
 		rdn => rdn, wrn => wrn,
-		cache => cache
+		debug_step => open,
+		output_cache => cache
 	);
 
 	stallman_inst: entity stallman port map(
