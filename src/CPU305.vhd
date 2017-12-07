@@ -6,7 +6,7 @@ use WORK.cache_def.ALL;
 
 entity CPU is
 	port(
-		clk_press, clk_50m, rst_press: in std_logic;
+		clk_press, clk_src, rst_press: in std_logic;
 		sram1_en, sram1_oe, sram1_we: out std_logic;
 		sram2_en, sram2_oe, sram2_we: out std_logic;
 		sram1_data, sram2_data: inout std_logic_vector(15 downto 0);
@@ -71,6 +71,7 @@ signal  flash_finished : std_logic;
 signal	id_danger_addr, mem1_danger_addr1, mem1_danger_addr2: std_logic_vector(15 downto 0);
 
 signal	cache: cache_array;
+signal 	clk_100m, clk_25m : std_logic;
 
 begin
 	--debug0 <= forwarder_rval2;
@@ -114,9 +115,18 @@ begin
 	--sram1_en <= mem1_sram1_en;
 	--sram1_oe <= mem1_sram1_oe;
 	--sram1_we <= mem1_sram1_we;
+	Inst_dcm_test: entity dcm_test PORT MAP(
+		CLKIN_IN => clk_src,
+		RST_IN => '0',
+		CLKFX_OUT => clk_100m,--75m truely
+		CLKIN_IBUFG_OUT => open,
+		CLK0_OUT => open,
+		LOCKED_OUT => open
+	);
 	clkman_inst: entity clkman port map(
-		clk_in => clk_50m,
-		clk => clk, clk_wr => clk_wr -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
+		clk_in => clk_100m,
+		clk => clk, clk_wr => clk_wr, -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
+		clk_25m => clk_25m
 	);
 
 	reg_inst: entity reg port map(
@@ -141,7 +151,7 @@ begin
 		danger_addr2 => mem1_danger_addr2
 	);
 	flash_inst: entity flash port map(
-		clk => clk, rst => rst_flash, --clk??
+		clk => clk_25m, rst => rst_flash, --clk??
 		sram1_addr => flash_sram1_addr,	sram1_data => flash_sram1_data,				
 		sram1_en => flash_sram1_en, sram1_oe => flash_sram1_oe, sram1_we =>flash_sram1_we,
 		flash_finished =>flash_finished,

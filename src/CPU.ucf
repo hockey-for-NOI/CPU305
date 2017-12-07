@@ -50,7 +50,7 @@ NET "sram2_data[1]" LOC = J13;
 NET "sram2_data[0]" LOC = J12;
 NET "clk_press" LOC = U9;
 NET "rst_press" LOC = U10;
-NET "clk_50m" LOC = B9;
+NET "clk_src" LOC = B9;
 NET "debug1[6]" LOC = F8;
 NET "debug1[5]" LOC = E8;
 NET "debug1[4]" LOC = A8;
@@ -157,3 +157,6 @@ NET "flash_data[2]" LOC = J2;
 NET "flash_data[1]" LOC = J4;
 NET "flash_data[0]" LOC = J5;
 NET "rst_flash" LOC = T7;
+#Created by Constraints Editor (xc3s1200e-fg320-4) - 2017/12/07
+NET "clk_src" TNM_NET = clk_src;
+TIMESPEC TS_clk_src = PERIOD "clk_src" 20 ns HIGH 50%;
