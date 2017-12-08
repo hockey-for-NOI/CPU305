@@ -28,7 +28,7 @@ end CPU;
 
 architecture bhv of CPU is
 
-signal	clk, clk_wr, rst: std_logic;
+signal	clk, clk_wr, rst, clk_dcm: std_logic;
 signal	reg_rd1, reg_rd2, reg_wr: std_logic_vector(3 downto 0);
 signal	reg_rval1, reg_rval2, reg_wval: std_logic_vector(15 downto 0);
 signal	reg_we: std_logic;
@@ -115,9 +115,17 @@ begin
 
 --	rst_neg <= not rst;
 --	rst_shift <= rst_neg;
-	
+
+	Inst_dcm_test: entity dcm_test PORT MAP(
+		CLKIN_IN => clk_50m,
+		RST_IN => '0',
+		CLKFX_OUT => clk_dcm,
+		CLKIN_IBUFG_OUT => open,
+		CLK0_OUT => open,
+		LOCKED_OUT => open
+	);
 	clkman_inst: entity clkman port map(
-		clk_in => clk_50m,
+		clk_in => clk_dcm,
 		clk => clk,
 		clk_wr => clk_wr
 	);
