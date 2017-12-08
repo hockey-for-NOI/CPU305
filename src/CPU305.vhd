@@ -7,6 +7,10 @@ use WORK.cache_def.ALL;
 entity CPU is
 	port(
 		clk_press, clk_src, rst_press: in std_logic;
+		ps2_clk, ps2_data: in std_logic;
+		hs : out std_logic;
+		vs : out std_logic;
+		r, g, b : out std_logic_vector(2 downto 0);
 		sram1_en, sram1_oe, sram1_we: out std_logic;
 		sram2_en, sram2_oe, sram2_we: out std_logic;
 		sram1_data, sram2_data: inout std_logic_vector(15 downto 0);
@@ -71,6 +75,7 @@ signal  flash_finished : std_logic;
 signal	id_danger_addr, mem1_danger_addr1, mem1_danger_addr2: std_logic_vector(15 downto 0);
 
 signal	cache: cache_array;
+signal   clk_origin : std_logic;
 signal 	clk_100m, clk_25m : std_logic;
 
 begin
@@ -109,18 +114,12 @@ begin
 		sram1_oe <= mem1_sram1_oe when '1', flash_sram1_oe when others;
 	with flash_finished select
 		sram1_we <= mem1_sram1_we when '1', flash_sram1_we when others;
-	--rst <= rst_press;
-	--sram1_addr <= mem1_sram1_addr;
-	--sram1_data <= mem1_sram1_data;
-	--sram1_en <= mem1_sram1_en;
-	--sram1_oe <= mem1_sram1_oe;
-	--sram1_we <= mem1_sram1_we;
 	Inst_dcm_test: entity dcm_test PORT MAP(
 		CLKIN_IN => clk_src,
 		RST_IN => '0',
 		CLKFX_OUT => clk_100m,--75m truely
 		CLKIN_IBUFG_OUT => open,
-		CLK0_OUT => open,
+		CLK0_OUT => clk_origin,
 		LOCKED_OUT => open
 	);
 	clkman_inst: entity clkman port map(
@@ -128,7 +127,13 @@ begin
 		clk => clk, clk_wr => clk_wr, -- clk_wr: In each clk period, starts as '1', turn to '0' when the falling edge of clk, and return to '1' a.s.a.p.
 		clk_25m => clk_25m
 	);
-
+	vga_inst: entity vga port map(
+		clk => clk_origin, rst => rst,
+		h_sync => hs, v_sync => vs,
+		r => r, g => g, b => b,
+		ps2_clk => ps2_clk, ps2_data => ps2_data
+	);
+	
 	reg_inst: entity reg port map(
 		clk => clk,
 		rd1 => reg_rd1, rval1 => reg_rval1,

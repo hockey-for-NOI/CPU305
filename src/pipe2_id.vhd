@@ -185,7 +185,7 @@ begin
 								output_reg_rd1 <= rx;
 								output_jump_addr <= input_reg_rval1;
 								output_jump_flag <= '1';
-								output_val1 <= input_reg_rval1 + 2; --RPC
+								output_val1 <= input_pc_addr + 2; --RPC
 								output_res_reg_addr <= "1011"; --B: RA
 								output_alu_op <= "1000"; --8: val1
 								output_reg_wr_flag <= '1';
